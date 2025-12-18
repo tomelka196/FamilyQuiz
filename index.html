@@ -7,9 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Firebase SDK v8 - Most stable for static hosting -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
         body { font-family: 'Merriweather', serif; margin: 0; padding: 0; }
@@ -21,30 +21,21 @@
 <body>
     <div id="root"></div>
     <script>
-        // Wait for Firebase SDK to load
-        window.addEventListener('load', function() {
-            // Check if Firebase is loaded
-            if (typeof firebase === 'undefined') {
-                document.getElementById('root').innerHTML = '<div style="padding: 20px; text-align: center;"><h1>Chyba načítání Firebase / Firebase loading error</h1><p>Zkuste obnovit stránku / Try refreshing the page</p></div>';
-                console.error('Firebase SDK failed to load');
-                return;
-            }
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA-7YU1mkJoyfp27egxLGeaZ9w-XlJsHk",
+            authDomain: "familyquiz-7286e.firebaseapp.com",
+            databaseURL: "https://familyquiz-7286e-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "familyquiz-7286e",
+            storageBucket: "familyquiz-7286e.firebasestorage.app",
+            messagingSenderId: "613041565722",
+            appId: "1:613041565722:web:9fb4c6ae3b814b8bfaa1a3"
+        };
 
-            // Firebase Configuration
-            const firebaseConfig = {
-                apiKey: "AIzaSyAA-7YU1mkJoyfp27egxLGeaZ9w-XlJsHk",
-                authDomain: "familyquiz-7286e.firebaseapp.com",
-                databaseURL: "https://familyquiz-7286e-default-rtdb.europe-west1.firebasedatabase.app",
-                projectId: "familyquiz-7286e",
-                storageBucket: "familyquiz-7286e.firebasestorage.app",
-                messagingSenderId: "613041565722",
-                appId: "1:613041565722:web:9fb4c6ae3b814b8bfaa1a3"
-            };
-
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            const database = firebase.database();
-            const gameRef = database.ref('game');
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const gameRef = database.ref('game');
 
         const CATEGORIES = [
             { id: 1, name: 'Geography & Landmarks', icon: '🌍', type: 'knowledge', points: 10 },
@@ -636,8 +627,6 @@
         }
 
         const app = new QuizApp();
-        
-        }); // End of window.load event
     </script>
 </body>
 </html>
