@@ -118,15 +118,37 @@
                 this.gameData = null;
                 this.timerInterval = null;
                 this.hintInterval = null;
+                this.lastRenderState = '';
                 
                 // Listen to Firebase changes
                 gameRef.on('value', (snapshot) => {
-                    this.gameData = snapshot.val();
-                    if (!this.gameData) {
+                    const newData = snapshot.val();
+                    if (!newData) {
                         // Initialize game if not exists
                         this.initializeGame();
                     } else {
-                        this.render();
+                        const oldData = this.gameData;
+                        this.gameData = newData;
+                        
+                        // Only render if something meaningful changed
+                        const newState = JSON.stringify({
+                            view: this.view,
+                            gameState: newData.gameState,
+                            countdown: newData.countdown,
+                            currentLevel: newData.currentLevel,
+                            currentCategory: newData.currentCategory,
+                            timer: newData.timer,
+                            timerActive: newData.timerActive,
+                            team1Ready: newData.teams?.team1?.ready,
+                            team2Ready: newData.teams?.team2?.ready,
+                            team1Score: newData.teams?.team1?.score,
+                            team2Score: newData.teams?.team2?.score
+                        });
+                        
+                        if (newState !== this.lastRenderState) {
+                            this.lastRenderState = newState;
+                            this.render();
+                        }
                     }
                 });
             }
@@ -290,8 +312,21 @@
             handleTimers() {
                 const d = this.gameData;
                 
-                // Countdown timer
-                if (d.gameState === 'countdown' && d.countdown > 0) {
+                // Clear all timers first if game state changed
+                if (d.gameState !== 'countdown' && d.gameState !== 'playing') {
+                    if (this.timerInterval) {
+                        clearInterval(this.timerInterval);
+                        this.timerInterval = null;
+                    }
+                    if (this.hintInterval) {
+                        clearInterval(this.hintInterval);
+                        this.hintInterval = null;
+                    }
+                    return;
+                }
+                
+                // Countdown timer - ONLY for HOST
+                if (this.view === 'host' && d.gameState === 'countdown' && d.countdown > 0) {
                     if (!this.timerInterval) {
                         this.timerInterval = setInterval(() => {
                             const newCountdown = this.gameData.countdown - 1;
@@ -304,10 +339,13 @@
                             }
                         }, 1000);
                     }
+                } else if (d.gameState !== 'countdown' && this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
                 }
                 
-                // Game timer
-                if (d.currentLevel > 1 && d.timerActive && d.timer > 0) {
+                // Game timer - ONLY for HOST
+                if (this.view === 'host' && d.currentLevel > 1 && d.timerActive && d.timer > 0 && d.gameState === 'playing') {
                     if (!this.timerInterval) {
                         this.timerInterval = setInterval(() => {
                             const newTimer = this.gameData.timer - 1;
@@ -320,10 +358,13 @@
                             }
                         }, 1000);
                     }
+                } else if ((!d.timerActive || d.gameState !== 'playing') && this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
                 }
                 
-                // Hint timer
-                if (d.currentLevel > 1 && d.timerActive && !this.hintInterval) {
+                // Hint timer - ONLY for HOST
+                if (this.view === 'host' && d.currentLevel > 1 && d.timerActive && !this.hintInterval && d.gameState === 'playing') {
                     const q = QUESTIONS[d.currentCategory]?.[d.currentLevel];
                     if (q?.hints) {
                         this.hintInterval = setInterval(() => {
