@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Love The World - Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Merriweather', serif; margin: 0; padding: 0; }
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .timer-pulse { animation: pulse 1s ease-in-out infinite; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        const CATEGORIES = [
+            { id: 1, name: 'Geography & Landmarks', icon: '🌍', type: 'knowledge', points: 10 },
+            { id: 2, name: 'Music Through Decades', icon: '🎵', type: 'buzzer', points: 12 },
+            { id: 3, name: 'Food & Traditions', icon: '🍕', type: 'knowledge', points: 10 },
+            { id: 4, name: 'Famous People', icon: '👥', type: 'knowledge', points: 10 },
+            { id: 5, name: 'Movies & TV', icon: '🎬', type: 'buzzer', points: 15 },
+            { id: 6, name: 'Nature & Animals', icon: '🌲', type: 'knowledge', points: 10 },
+            { id: 7, name: 'History Highlights', icon: '⏰', type: 'knowledge', points: 10 }
+        ];
+
+        const QUESTIONS = {
+            1: { // Geography
+                1: { cz: 'Ve které zemi se nachází Eiffelova věž?', it: 'In quale paese si trova la Torre Eiffel?', answers: ['Francie / Francia', 'Německo / Germania', 'Itálie / Italia', 'Španělsko / Spagna'], correct: 0 },
+                2: { cz: 'Věčné město na sedmi pahorcích, kde kdysi vládli císařové a gladiátoři bojovali v arénách. Které město to je?', it: 'La città eterna su sette colli, dove imperatori governarono e gladiatori combatterono. Quale città è?', answers: ['Atény / Atene', 'Řím / Roma', 'Istanbul', 'Káhira / Cairo'], correct: 1, hints: [{type:'image',content:'https://lh3.googleusercontent.com/d/1fN17ROTReni7sfi44IUou6StbzSXTlH6'},{type:'text',content:'💡 Nachází se v Itálii'}] },
+                3: { cz: 'Tento oceán je největší na planetě, pokrývá více než třetinu zemského povrchu. Jaký oceán to je?', it: 'Questo oceano è il più grande del pianeta, copre più di un terzo della superficie terrestre. Quale oceano è?', answers: ['Tichý / Pacifico', 'Indický / Indiano', 'Atlantský / Atlantico', 'Severní ledový / Artico'], correct: 0, hints: [{type:'text',content:'💡 Leží mezi Amerikou a Asií'},{type:'image',content:'https://lh3.googleusercontent.com/d/1o2kJPFS1U3XaUvoOUzAt04UfGIUtBfmI'}] },
+                4: { cz: 'Vlnící se kopce, vinice a aleje cypřišů. Odtud pochází slavné červené víno z hroznů Sangiovese. Která italská oblast je s touto krajinou spojená?', it: 'Colline ondulate, vigneti e viali di cipressi. Da qui proviene il famoso vino rosso dai vitigni Sangiovese. Quale regione italiana è associata a questo paesaggio?', answers: ['Piemonte', 'Toskánsko / Toscana', 'Sicílie / Sicilia', 'Benátsko / Veneto'], correct: 1, hints: [{type:'text',content:'💡 Víno se jmenuje Chianti'},{type:'image',content:'https://lh3.googleusercontent.com/d/1vfx5ov4HuJVptGK0IjJKX9wHfPczf9_x'}] },
+                5: { cz: 'Tato hora, která se tyčí na hranici Nepálu a Tibetu, je nazývána "Matka bohyně světa". Její vrchol dosahuje 8 849 metrů. Která hora to je?', it: 'Questa montagna, che si erge al confine tra Nepal e Tibet, è chiamata "Madre dea del mondo". La sua vetta raggiunge 8 849 metri. Quale montagna è?', answers: ['K2', 'Mount Everest', 'Kilimandžáro / Kilimangiaro', 'Mont Blanc'], correct: 1, hints: [{type:'text',content:'💡 Je to nejvyšší hora světa'},{type:'image',content:'https://lh3.googleusercontent.com/d/1kp6xldPTHfQAdvSfm48J4XR2sJqGJEwy'}] }
+            },
+            2: { // Music - Visual puzzles
+                1: { cz: 'Uhádněte písničku', it: 'Indovina la canzone', type: 'buzzer', visual: '👑💃', answer: 'Dancing Queen (ABBA)', image: 'https://lh3.googleusercontent.com/d/19g1qQ2MbO6T7rbh2iA7lzE3TOZnBJR-F' },
+                2: { cz: 'Uhádněte písničku', it: 'Indovina la canzone', type: 'buzzer', visual: '👥🏆', answer: 'We Are The Champions (Queen)', image: 'https://lh3.googleusercontent.com/d/1BRH8B9FeIm4StgdbdYUS41jz1Drk3zFa' },
+                3: { cz: 'Uhádněte písničku', it: 'Indovina la canzone', type: 'buzzer', visual: '👖👩', answer: 'Thriller (Michael Jackson)', image: 'https://lh3.googleusercontent.com/d/1HuNZOUk-POnrEFrokZZm_jRXNfqizStn' },
+                4: { cz: 'Uhádněte písničku', it: 'Indovina la canzone', type: 'buzzer', visual: '🐉⚡⛈️', answer: 'Thunder (Imagine Dragons)', image: 'https://lh3.googleusercontent.com/d/1qOcxxo0DTPBXxMgBUTPf6hWH5moU2gsz' },
+                5: { cz: 'Uhádněte písničku', it: 'Indovina la canzone', type: 'buzzer', visual: '📐👤', answer: 'Shape of You (Ed Sheeran)', image: 'https://lh3.googleusercontent.com/d/1j4Vg86oe7NwlHuPOpbZCa2VP3_kJxI_Q' }
+            },
+            3: { // Food
+                1: { cz: 'Jaká je hlavní přísada v tradičním italském rizotu?', it: 'Qual è l\'ingrediente principale nel risotto italiano tradizionale?', answers: ['Brambory / Patate', 'Rýže / Riso', 'Těstoviny / Pasta', 'Polenta'], correct: 1 },
+                2: { cz: 'Pochází ze země vycházejícího slunce, připravuje se z rýže a syrových ryb. Co to je?', it: 'Proviene dalla terra del sol levante, si prepara con riso e pesce crudo. Cos\'è?', answers: ['Sushi', 'Ramen', 'Tempura', 'Sashimi'], correct: 0, hints: [{type:'text',content:'💡 Jí se hůlkami'},{type:'image',content:'https://lh3.googleusercontent.com/d/1CfWs_qfzNySH2Fq3f8XOWGE3D8KUK3B5'}] },
+                3: { cz: 'Zraje pod srpnovým sluncem a jeho vůně naplní celou chalupu. Když přijde čas, stává se z něho tekutý poklad — ale jen pro ty trpělivé. Co vzniká tímto tradičním způsobem?', it: 'Matura sotto il sole di agosto e il suo profumo riempie tutta la casa di campagna. Quando arriva il momento, diventa un tesoro liquido — ma solo per i pazienti. Cosa nasce in questo modo tradizionale?', answers: ['Povidla / Marmellata di prugne', 'Slivovice / Grappa di prugne', 'Hruškovice / Grappa di pere', 'Džem / Confettura'], correct: 1, hints: [{type:'text',content:'💡 Obsahuje alkohol'},{type:'image',content:'https://lh3.googleusercontent.com/d/1x-HxmchEGs4AGtd9C_v_LdrukKFGKqYB'}] },
+                4: { cz: 'Tvrdý, dozrávající sýr s nezaměnitelnou chutí, který nese chráněné označení původu. Zraje v srdci Itálie a nese jméno svého kraje. Jak se jmenuje?', it: 'Formaggio duro, stagionato con un gusto inconfondibile, che porta la denominazione di origine protetta. Matura nel cuore dell\'Italia e porta il nome della sua regione. Come si chiama?', answers: ['Parmigiano Reggiano', 'Gorgonzola', 'Mozzarella', 'Grana Padano'], correct: 0, hints: [{type:'text',content:'💡 Strouhá se na těstoviny'},{type:'image',content:'https://lh3.googleusercontent.com/d/10sPQMLXLfRF88mHtK7DS5MD2gWKWTEmu'}] },
+                5: { cz: 'Tento tradiční český pokrm se servíruje v den, kdy se všichni postíme, abychom večer viděli zlaté prasátko. Skládá se z živočicha žijícího ve vodě s přílohou salátovou. Co je to?', it: 'Questo piatto tradizionale ceco si serve nel giorno in cui tutti digiunano per vedere il maialino d\'oro la sera. Si compone di un animale acquatico con contorno di insalata. Cos\'è?', answers: ['Humr', 'Chobotnice', 'Kapr', 'Tuňák'], correct: 2, hints: [{type:'text',content:'💡 Je to sladkovodní ryba'},{type:'image',content:'https://lh3.googleusercontent.com/d/1uWiviULENkpqoppWAmaVz32mmnQvcIJR'}] }
+            },
+            4: { // Famous People
+                1: { cz: 'Kdo namaloval Monu Lisu?', it: 'Chi ha dipinto la Gioconda?', answers: ['Michelangelo', 'Leonardo da Vinci', 'Raffaello', 'Caravaggio'], correct: 1 },
+                2: { cz: 'Putoval peklem, očistcem i rájem. Jeho verše z 14. století tvoří jednu z největších literárních poutí vůbec. Kdo je autorem této cesty?', it: 'Ha viaggiato attraverso l\'inferno, il purgatorio e il paradiso. I suoi versi del XIV secolo formano uno dei più grandi viaggi letterari di tutti i tempi. Chi è l\'autore di questo viaggio?', answers: ['Dante Alighieri', 'Petrarca', 'Boccaccio', 'Manzoni'], correct: 0, hints: [{type:'text',content:'💡 Jeho jméno začíná D'},{type:'image',content:'https://lh3.googleusercontent.com/d/1SztwUyzGgD-MEwHvDysjL_i0b7GYeDAR'}] },
+                3: { cz: 'Tento americký astronaut prohlásil v roce 1969: "To je malý krok pro člověka, ale obrovský skok pro lidstvo." Kdo to byl?', it: 'Questo astronauta americano dichiarò nel 1969: "Un piccolo passo per l\'uomo, un grande balzo per l\'umanità." Chi era?', answers: ['Louis Armstrong', 'Neil Armstrong', 'Lance Armstrong', 'John W. Armstrong'], correct: 1, hints: [{type:'text',content:'💡 Byl první člověk na Měsíci'},{type:'image',content:'https://lh3.googleusercontent.com/d/1IynSoHj5FtB9gMfwfll1Hhh8EHk3oIp7'}] },
+                4: { cz: 'Tento slavný skladatel přišel o sluch, přesto vytvořil díla, která dnes zná celý svět. Kdo to byl?', it: 'Questo famoso compositore perse l\'udito, ma creò opere che oggi conosce tutto il mondo. Chi era?', answers: ['Mozart', 'Bach', 'Beethoven', 'Vivaldi'], correct: 2, hints: [{type:'text',content:'💡 Jeho 9. symfonie je hymnou EU'},{type:'image',content:'https://lh3.googleusercontent.com/d/1bBDxYmssy5iCP7FymJLcs7au3HpCFUu6'}] },
+                5: { cz: 'Vědec s nezaměnitelným vzhledem, který navždy změnil pojetí prostoru, času i energie. Jeho slavná rovnice je známá, ale jeho život plný paradoxů ještě více. Kdo to byl?', it: 'Scienziato dall\'aspetto inconfondibile, che ha cambiato per sempre la concezione di spazio, tempo ed energia. La sua famosa equazione è nota, ma la sua vita piena di paradossi ancora di più. Chi era?', answers: ['Isaac Newton', 'Albert Einstein', 'Galileo Galilei', 'Stephen Hawking'], correct: 1, hints: [{type:'text',content:'💡 Dostal Nobelovu cenu za fyziku'},{type:'image',content:'https://lh3.googleusercontent.com/d/1FHuI9hQxTnx6bL5trkGYdkEO6czMeVaw'}] }
+            },
+            5: { // Movies - Visual puzzles
+                1: { cz: 'Uhádněte film', it: 'Indovina il film', type: 'buzzer', visual: '🚢❄️', answer: 'Titanic', image: 'https://lh3.googleusercontent.com/d/1xeUquLRMucxea9In_xl0dhkiLzaFTKuU' },
+                2: { cz: 'Uhádněte postavu', it: 'Indovina il personaggio', type: 'buzzer', visual: '⚡👓🧙‍♂️', answer: 'Harry Potter', image: 'https://lh3.googleusercontent.com/d/1QoTlP3rWK55_C2Y72G-zyZIijTCsSwFs' },
+                3: { cz: 'Uhádněte animovaný film', it: 'Indovina il film d\'animazione', type: 'buzzer', visual: '🧅👹', answer: 'Shrek', image: 'https://lh3.googleusercontent.com/d/1XDhsUSmlKgiJNhfG_3wb0QuGx3W4pkRV' },
+                4: { cz: 'Uhádněte seriál', it: 'Indovina la serie', type: 'buzzer', visual: '🐉👑⚔️', answer: 'Game of Thrones', image: 'https://lh3.googleusercontent.com/d/1pHuQ12SYbauup20MWXyTcqH6jF8cRw_2' },
+                5: { cz: 'Uhádněte superhrdinu', it: 'Indovina il supereroe', type: 'buzzer', visual: '🦇🦸‍♂️', answer: 'Batman', image: 'https://lh3.googleusercontent.com/d/1TkawDFNTGv9dcGnV79btWmJnaR-0I2CG' }
+            },
+            6: { // Nature
+                1: { cz: 'Jaké je největší zvíře na světě?', it: 'Qual è l\'animale più grande del mondo?', answers: ['Slon / Elefante', 'Žirafa / Giraffa', 'Modrá velryba / Balenottera azzurra', 'Nosorožec / Rinoceronte'], correct: 2 },
+                2: { cz: 'Tichý tkadlec visící mezi větvemi. Má osm končetin a mistrovské dílo z hedvábí. O kom je řeč?', it: 'Silenzioso tessitore appeso tra i rami. Ha otto arti e un capolavoro di seta. Di chi si parla?', answers: ['Mravenec / Formica', 'Pavouk / Ragno', 'Stonožka / Millepiedi', 'Brouk / Scarafaggio'], correct: 1, hints: [{type:'text',content:'💡 Loví hmyz'},{type:'image',content:'https://lh3.googleusercontent.com/d/1fu6i8wBraTZj3JeC4BbDfk1H5qpoPs0L'}] },
+                3: { cz: 'Žije tam, kde jiní zmrznou. Nepotřebuje křídla k letu, protože ve vodě je rychlejší než většina ryb. Kdo je tento obyvatel ledového království?', it: 'Vive dove gli altri congelano. Non ha bisogno di ali per volare, perché in acqua è più veloce della maggior parte dei pesci. Chi è questo abitante del regno ghiacciato?', answers: ['Mrož / Tricheco', 'Tučňák / Pinguino', 'Lední medvěd / Orso polare', 'Polární liška / Volpe artica'], correct: 1, hints: [{type:'text',content:'💡 Žije v nejchladnějším místě na Zemi'},{type:'image',content:'https://lh3.googleusercontent.com/d/1_IgBBs54MXpn6m2r44gHYKev0NYZ2CtG'}] },
+                4: { cz: 'Vysoký tvor tiše kráčí mezi stromy. Jeho krk se tyčí nad krajinou, ale nikdo si není jistý, kdo to vlastně je. Které zvíře to může být?', it: 'Una creatura alta cammina silenziosamente tra gli alberi. Il suo collo si erge sopra il paesaggio, ma nessuno è sicuro di chi sia veramente. Quale animale potrebbe essere?', answers: ['Brontosaurus', 'Žirafa / Giraffa', 'Velbloud / Cammello', 'Pštros / Struzzo'], correct: 1, hints: [{type:'text',content:'💡 Je to nejvyšší zvíře na světě'},{type:'image',content:'https://lh3.googleusercontent.com/d/1AZ-ysk-Dz7PpOkEAt-Mou0-Cc7Ego9uW'}] },
+                5: { cz: 'Tyto obrovské stromy mohou žít více než 3000 let a dorůst výšky přes 100 metrů. Rostou v Kalifornii a patří k nejstarším organismům na planetě. Jak se jmenují?', it: 'Questi alberi giganti possono vivere più di 3000 anni e raggiungere altezze superiori a 100 metri. Crescono in California e sono tra gli organismi più antichi del pianeta. Come si chiamano?', answers: ['Dub / Quercia', 'Borovice / Pino', 'Sekvoje / Sequoia', 'Bříza / Betulla'], correct: 2, hints: [{type:'text',content:'💡 Jejich kůra je červenohnědá'},{type:'image',content:'https://lh3.googleusercontent.com/d/1Wgenr4rMhSptU1zGyXi0XJiqBoGhj86y'}] }
+            },
+            7: { // History
+                1: { cz: 'Ve kterém roce skončila 2. světová válka?', it: 'In che anno è finita la Seconda Guerra Mondiale?', answers: ['1943', '1944', '1945', '1946'], correct: 2 },
+                2: { cz: 'Betonová bariéra, která rozdělila město a svět na dvě poloviny, padla jedné listopadové noci za jásotu davů. V kterém roce se začaly drolit její zdi?', it: 'Una barriera di cemento che divise la città e il mondo in due metà, cadde una notte di novembre tra il giubilo delle folle. In che anno iniziarono a sgretolarsi le sue mura?', answers: ['1987', '1989', '1991', '1993'], correct: 1, hints: [{type:'text',content:'💡 Stalo se to v Berlíně'},{type:'image',content:'https://lh3.googleusercontent.com/d/1Wydj3kJJOoj4xw_qqyh_hlIzNedfcaa9'}] },
+                3: { cz: 'Vedl svou zemi v době rozdělení a utrpení. Svým podpisem změnil osudy milionů a stal se symbolem boje za svobodu. Kdo byl tímto americkým prezidentem?', it: 'Ha guidato il suo paese in un periodo di divisione e sofferenza. Con la sua firma ha cambiato il destino di milioni e è diventato un simbolo della lotta per la libertà. Chi era questo presidente americano?', answers: ['Thomas Jefferson', 'George Washington', 'Abraham Lincoln', 'Benjamin Franklin'], correct: 2, hints: [{type:'text',content:'💡 Jeho tvář je na Mt. Rushmore'},{type:'image',content:'https://lh3.googleusercontent.com/d/1EMC8EgAlrBsMSTsAVavJTtrWnoqDo8Pt'}] },
+                4: { cz: 'Smlouva podepsaná v historickém nizozemském městě roku 1993 spojila národy do nového celku. Jak se jmenuje organizace, která z ní vznikla?', it: 'Un trattato firmato in una storica città olandese nel 1993 ha unito le nazioni in un nuovo insieme. Come si chiama l\'organizzazione nata da esso?', answers: ['NATO', 'Evropská unie (EU)', 'OSN', 'Rada Evropy'], correct: 1, hints: [{type:'text',content:'💡 Smlouva se jmenuje Maastrichtská'},{type:'image',content:'https://lh3.googleusercontent.com/d/1WZfoCmKnKFtWwSKwLaAqCET1EyxhJgWE'}] },
+                5: { cz: 'Tři lodě tiše prorážely mlhu Atlantiku. Na palubě posádka, která netušila, že mění dějiny. V kterém roce se tato výprava vydala na cestu?', it: 'Tre navi silenziose attraversavano la nebbia dell\'Atlantico. A bordo un equipaggio che non sapeva di cambiare la storia. In che anno questa spedizione intraprese il viaggio?', answers: ['1492', '1500', '1520', '1534'], correct: 0, hints: [{type:'text',content:'💡 Objevení Ameriky / Scoperta dell\'America'},{type:'image',content:'https://lh3.googleusercontent.com/d/1nghpjz1PlTzGQ9xyyGqffv5UJfEuowWq'}] }
+            }
+        };
+
+        class QuizApp {
+            constructor() {
+                this.view = 'select';
+                this.teamId = null;
+                this.rulesAccepted = false;
+                this.teamScreen = 'select';
+                this.gameData = this.getInitialState();
+                this.timerInterval = null;
+                this.loadState();
+                
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'quiz-state' && e.newValue) {
+                        this.gameData = JSON.parse(e.newValue);
+                        this.render();
+                    }
+                });
+                
+                setInterval(() => {
+                    const stored = localStorage.getItem('quiz-state');
+                    if (stored) {
+                        const newData = JSON.parse(stored);
+                        if (JSON.stringify(newData) !== JSON.stringify(this.gameData)) {
+                            this.gameData = newData;
+                            this.render();
+                        }
+                    }
+                }, 500);
+                
+                this.render();
+            }
+
+            getInitialState() {
+                return {
+                    gameState: 'welcome',
+                    currentLevel: 1,
+                    currentCategory: 1,
+                    countdown: 5,
+                    buzzer: null,
+                    timer: 60,
+                    timerActive: false,
+                    hintsShown: 0,
+                    showCorrect: false,
+                    answers: {},
+                    teams: {
+                        team1: { name: 'Tým 1 / Squadra 1', ready: false, score: 0 },
+                        team2: { name: 'Tým 2 / Squadra 2', ready: false, score: 0 }
+                    }
+                };
+            }
+
+            loadState() {
+                const stored = localStorage.getItem('quiz-state');
+                if (stored) {
+                    try { this.gameData = JSON.parse(stored); }
+                    catch (e) { this.gameData = this.getInitialState(); this.saveState(); }
+                } else this.saveState();
+            }
+
+            saveState() {
+                localStorage.setItem('quiz-state', JSON.stringify(this.gameData));
+            }
+
+            updateGameState(updates) {
+                this.gameData = { ...this.gameData, ...updates };
+                this.saveState();
+                this.render();
+            }
+
+            startTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                this.updateGameState({ timer: 60, timerActive: true, hintsShown: 0 });
+                
+                this.timerInterval = setInterval(() => {
+                    const newTimer = this.gameData.timer - 1;
+                    const updates = { timer: newTimer };
+                    
+                    // Show hints at 40s and 20s
+                    if (newTimer === 40 && this.gameData.hintsShown === 0) {
+                        updates.hintsShown = 1;
+                    } else if (newTimer === 20 && this.gameData.hintsShown === 1) {
+                        updates.hintsShown = 2;
+                    }
+                    
+                    if (newTimer <= 0) {
+                        clearInterval(this.timerInterval);
+                        updates.timerActive = false;
+                        updates.timer = 0;
+                    }
+                    
+                    this.updateGameState(updates);
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                this.updateGameState({ timerActive: false });
+            }
+
+            calculatePoints() {
+                const cat = CATEGORIES[this.gameData.currentCategory - 1];
+                const basePoints = cat.points;
+                const timer = this.gameData.timer;
+                
+                if (timer > 40) return basePoints;
+                if (timer > 20) return basePoints - 3;
+                if (timer > 0) return basePoints - 5;
+                return 0;
+            }
+
+            render() {
+                const root = document.getElementById('root');
+                root.innerHTML = ''; // Clear first to prevent stale state
+                
+                if (this.view === 'select') {
+                    root.innerHTML = this.renderViewSelect();
+                } else if (this.view === 'host') {
+                    root.innerHTML = this.renderHost();
+                    if (this.gameData.gameState === 'countdown' && this.gameData.countdown > 0) {
+                        setTimeout(() => {
+                            const newCountdown = this.gameData.countdown - 1;
+                            if (newCountdown === 0) this.updateGameState({ countdown: 0, gameState: 'playing' });
+                            else this.updateGameState({ countdown: newCountdown });
+                        }, 1000);
+                    }
+                } else if (this.view === 'team') {
+                    root.innerHTML = this.renderTeam();
+                }
+            }
+
+            renderViewSelect() {
+                return `<div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-8">
+                    <div class="max-w-2xl w-full"><div class="text-center mb-12"><div class="text-8xl mb-6">🌍</div>
+                    <h1 class="text-7xl font-bold text-white mb-4 font-oswald" style="text-shadow: 0 0 20px rgba(255,255,255,0.3)">WE LOVE THE WORLD</h1></div>
+                    <div class="grid gap-6">
+                    <button onclick="app.setView('host')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-2xl font-bold py-8 px-8 rounded-2xl hover:scale-105 transition-all shadow-2xl font-oswald">🏆 HOST</button>
+                    <button onclick="app.setView('team')" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-2xl font-bold py-8 px-8 rounded-2xl hover:scale-105 transition-all shadow-2xl font-oswald">👥 TÝM</button>
+                    <button onclick="app.resetAll()" class="bg-gradient-to-r from-red-500 to-pink-600 text-white text-xl font-bold py-4 px-8 rounded-2xl hover:scale-105 transition-all shadow-2xl font-oswald">🔄 RESET CELÉ HRY</button>
+                    </div>
+                    <div class="text-center mt-8 text-gray-400 text-sm opacity-70">© 2025 Created by TOOM & Claude.ai</div>
+                    </div></div>`;
+            }
+
+            renderHost() {
+                const d = this.gameData;
+                if (d.gameState === 'welcome') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-12"><div class="max-w-6xl mx-auto text-center">
+                    <div class="text-9xl mb-6 animate-bounce">🌍</div><h1 class="text-8xl font-bold mb-12 font-oswald" style="background: linear-gradient(to right, #fbbf24, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WE LOVE THE WORLD</h1>
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="p-6 rounded-xl ${d.teams.team1.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team1.name}</p><p class="text-xl">${d.teams.team1.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
+                    <div class="p-6 rounded-xl ${d.teams.team2.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team2.name}</p><p class="text-xl">${d.teams.team2.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
+                    </div>
+                    ${d.teams.team1.ready && d.teams.team2.ready ? '<button onclick="app.startCountdown()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-4xl font-bold py-8 px-16 rounded-2xl font-oswald animate-pulse">🚀 START</button>' : ''}
+                    <div class="text-center mt-12 text-gray-400 text-sm opacity-70">© 2025 Created by TOOM & Claude.ai</div>
+                    </div></div>`;
+                }
+                if (d.gameState === 'countdown') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-red-900 to-yellow-900 flex items-center justify-center"><h1 class="text-[20rem] font-bold text-white animate-bounce font-oswald">${d.countdown > 0 ? d.countdown : '🎉'}</h1></div>`;
+                }
+                if (d.gameState === 'playing') {
+                    return this.renderHostPlaying();
+                }
+                if (d.gameState === 'levelEnd') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-green-900 to-blue-900 text-white p-12"><div class="max-w-6xl mx-auto text-center">
+                    <h1 class="text-7xl font-bold mb-12 font-oswald">🏆 SKÓRE LEVEL ${d.currentLevel}</h1>
+                    <div class="grid grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white/10 rounded-3xl p-12"><h2 class="text-4xl font-bold mb-6">${d.teams.team1.name}</h2><p class="text-8xl font-bold text-yellow-400">${d.teams.team1.score}</p></div>
+                    <div class="bg-white/10 rounded-3xl p-12"><h2 class="text-4xl font-bold mb-6">${d.teams.team2.name}</h2><p class="text-8xl font-bold text-yellow-400">${d.teams.team2.score}</p></div>
+                    </div>
+                    <button onclick="app.nextLevel()" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-4xl font-bold py-8 px-16 rounded-2xl font-oswald">🚀 DALŠÍ LEVEL</button>
+                    </div></div>`;
+                }
+                if (d.gameState === 'finished') {
+                    const winner = d.teams.team1.score > d.teams.team2.score ? 'team1' : d.teams.team2.score > d.teams.team1.score ? 'team2' : 'tie';
+                    return `<div class="min-h-screen bg-gradient-to-br from-yellow-900 to-red-900 text-white p-12"><div class="max-w-6xl mx-auto text-center">
+                    <h1 class="text-9xl font-bold mb-12 font-oswald">🏆 VÍTĚZ</h1>${winner==='tie'?'<h2 class="text-6xl font-bold mb-12 text-yellow-400">🤝 REMÍZA</h2>':`<h2 class="text-6xl font-bold mb-12 text-yellow-400">🎉 ${d.teams[winner].name}</h2>`}
+                    <div class="grid grid-cols-2 gap-8 mb-12">
+                    <div class="rounded-3xl p-12 ${winner==='team1'?'bg-yellow-400/30 ring-8 ring-yellow-400 scale-110':'bg-white/10'}"><h2 class="text-4xl font-bold mb-6">${d.teams.team1.name}</h2><p class="text-9xl font-bold text-yellow-400">${d.teams.team1.score}</p></div>
+                    <div class="rounded-3xl p-12 ${winner==='team2'?'bg-yellow-400/30 ring-8 ring-yellow-400 scale-110':'bg-white/10'}"><h2 class="text-4xl font-bold mb-6">${d.teams.team2.name}</h2><p class="text-9xl font-bold text-yellow-400">${d.teams.team2.score}</p></div>
+                    </div>
+                    <button onclick="app.resetQuiz()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-3xl font-bold py-6 px-12 rounded-2xl font-oswald">🔄 NOVÁ HRA</button>
+                    </div></div>`;
+                }
+            }
+
+            renderHostPlaying() {
+                const d = this.gameData;
+                const cat = CATEGORIES[d.currentCategory - 1];
+                const q = QUESTIONS[d.currentCategory]?.[d.currentLevel];
+                if (!q) return '<div class="min-h-screen bg-red-900 text-white flex items-center justify-center"><h1 class="text-4xl">CHYBA - otázka nenalezena</h1></div>';
+                
+                const isBuzzer = cat.type === 'buzzer';
+                const isLevel1 = d.currentLevel === 1;
+                
+                if (isBuzzer) {
+                    return `<div class="min-h-screen bg-gradient-to-br from-indigo-900 to-pink-900 text-white p-8"><div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-8">
+                    <div class="text-2xl font-bold bg-white/20 px-6 py-3 rounded-full">LEVEL ${d.currentLevel}/5</div>
+                    <div class="text-4xl font-bold bg-yellow-400 text-gray-900 px-8 py-3 rounded-full">${cat.icon} ${cat.name}</div>
+                    <div class="text-2xl font-bold bg-green-500 px-6 py-3 rounded-full">💎 ${cat.points}</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-12 mb-8">
+                    <div class="text-3xl text-center mb-8"><p class="mb-4">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
+                    <div class="text-center mb-8">${q.image ? `<img src="${q.image}" class="mx-auto rounded-lg" style="max-width: 600px; max-height: 600px;" alt="${q.answer}">` : `<div class="text-9xl mb-8">${q.visual}</div>`}</div>
+                    ${d.buzzer ? `<div class="bg-green-500 text-3xl font-bold py-6 px-12 rounded-2xl text-center mb-8">⚡ ${this.gameData.teams[d.buzzer].name}</div>` : '<div class="text-2xl text-center text-yellow-300 mb-8">Čekáme na buzzer...</div>'}
+                    
+                    ${!d.showCorrect ? `
+                    <div class="text-center mb-8">
+                    <button onclick="app.revealAnswer()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-2xl font-bold py-6 px-12 rounded-2xl hover:scale-105 transition-all">
+                    📖 ZOBRAZIT ODPOVĚĎ
+                    </button>
+                    </div>` : ''}
+                    
+                    ${d.showCorrect ? `
+                    <div class="bg-yellow-400 text-gray-900 text-3xl font-bold py-6 px-12 rounded-2xl text-center mb-8">
+                    ✅ Správná odpověď: ${q.answer}
+                    </div>
+                    <div class="flex gap-4 justify-center">
+                    ${d.buzzer ? `
+                    <button onclick="app.awardPoints('${d.buzzer}',${cat.points})" class="bg-green-500 text-2xl font-bold py-4 px-12 rounded-xl">✓ Správně</button>
+                    <button onclick="app.nextQuestion()" class="bg-red-500 text-2xl font-bold py-4 px-12 rounded-xl">✗ Špatně</button>
+                    ` : `
+                    <button onclick="app.nextQuestion()" class="bg-blue-500 text-2xl font-bold py-4 px-12 rounded-xl">➡️ DALŠÍ OTÁZKA</button>
+                    `}
+                    </div>` : ''}
+                    </div>
+                    </div></div>`;
+                } else {
+                    // Knowledge questions
+                    const team1Answered = d.answers && d.answers[`team1-${d.currentLevel}-${d.currentCategory}`] !== undefined;
+                    const team2Answered = d.answers && d.answers[`team2-${d.currentLevel}-${d.currentCategory}`] !== undefined;
+                    const bothAnswered = team1Answered && team2Answered;
+                    const showCorrect = d.showCorrect || false;
+                    
+                    // Timer display
+                    let timerColor = 'text-green-400';
+                    if (d.timer <= 20) timerColor = 'text-red-400 timer-pulse';
+                    else if (d.timer <= 40) timerColor = 'text-yellow-400';
+                    
+                    return `<div class="min-h-screen bg-gradient-to-br from-indigo-900 to-pink-900 text-white p-8"><div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-8">
+                    <div class="text-2xl font-bold bg-white/20 px-6 py-3 rounded-full">LEVEL ${d.currentLevel}/5</div>
+                    <div class="text-4xl font-bold bg-yellow-400 text-gray-900 px-8 py-3 rounded-full">${cat.icon} ${cat.name}</div>
+                    <div class="text-2xl font-bold bg-green-500 px-6 py-3 rounded-full">💎 ${this.calculatePoints()}</div>
+                    </div>
+                    
+                    ${!isLevel1 && d.timerActive ? `<div class="text-center mb-8"><div class="text-6xl font-bold ${timerColor} font-oswald">${d.timer}s</div></div>` : ''}
+                    
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-12 mb-8">
+                    <div class="text-3xl text-center mb-8"><p class="mb-4">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
+                    
+                    ${!isLevel1 && q.hints && d.hintsShown > 0 ? `<div class="mb-8 text-center text-2xl text-yellow-300">${q.hints[d.hintsShown-1].content.startsWith('data:image') || q.hints[d.hintsShown-1].content.startsWith('https://') ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 300px; max-height: 300px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}</div>` : ''}
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                    ${q.answers.map((a,i)=>`<div class="text-2xl font-bold py-8 px-6 rounded-xl text-center transition-all ${showCorrect && i===q.correct ? 'bg-green-500 ring-4 ring-green-300 scale-105' : 'bg-white/20'}">
+                    <span class="text-yellow-400 text-3xl mr-3">${String.fromCharCode(65+i)}</span>${a}</div>`).join('')}
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="p-6 rounded-xl ${team1Answered ? 'bg-green-500' : 'bg-red-500/50'}">
+                    <p class="text-2xl font-bold text-center">${team1Answered ? '✓' : '🔴'} ${d.teams.team1.name}</p>
+                    <p class="text-xl text-center">${team1Answered ? 'Odpověděl / Ha risposto' : 'Čekáme / Aspettiamo'}</p>
+                    </div>
+                    <div class="p-6 rounded-xl ${team2Answered ? 'bg-green-500' : 'bg-red-500/50'}">
+                    <p class="text-2xl font-bold text-center">${team2Answered ? '✓' : '🔴'} ${d.teams.team2.name}</p>
+                    <p class="text-xl text-center">${team2Answered ? 'Odpověděl / Ha risposto' : 'Čekáme / Aspettiamo'}</p>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <div class="text-center">
+                    ${!showCorrect && bothAnswered ? `
+                    <button onclick="app.showCorrectAnswer()" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-3xl font-bold py-6 px-16 rounded-2xl hover:scale-105 transition-all shadow-2xl font-oswald mb-4">
+                    📋 ZOBRAZIT SPRÁVNOU ODPOVĚĎ
+                    </button>` : ''}
+                    ${showCorrect ? `
+                    <button onclick="app.nextQuestion()" class="bg-gradient-to-r from-green-400 to-blue-500 text-3xl font-bold py-6 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
+                    ➡️ DALŠÍ OTÁZKA
+                    </button>` : ''}
+                    ${!isLevel1 && !bothAnswered && !d.timerActive ? `
+                    <button onclick="app.startTimer()" class="bg-gradient-to-r from-blue-400 to-purple-500 text-3xl font-bold py-6 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
+                    ⏱️ SPUSTIT ČASOVAČ
+                    </button>` : ''}
+                    </div>
+                    </div></div>`;
+                }
+            }
+
+            renderTeam() {
+                const d = this.gameData;
+                
+                // Auto-switch to playing when game starts (but only from waiting, not from rules/select)
+                if (d.gameState === 'playing' && this.teamScreen === 'waiting') {
+                    this.teamScreen = 'playing';
+                }
+                
+                // Auto-switch to waiting when level ends or game finishes (but only from playing)
+                if ((d.gameState === 'levelEnd' || d.gameState === 'finished') && this.teamScreen === 'playing') {
+                    this.teamScreen = 'waiting';
+                }
+                
+                if (this.teamScreen === 'select') {
+                    const team1Taken = d.teams.team1.ready;
+                    const team2Taken = d.teams.team2.ready;
+                    
+                    return `<div class="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-8"><div class="max-w-2xl mx-auto">
+                    <div class="text-center mb-12"><div class="text-8xl mb-6">🌍</div><h1 class="text-5xl font-bold mb-4 font-oswald">VYBERTE TÝM</h1></div>
+                    <div class="grid gap-6">
+                    <button onclick="app.joinTeam('team1')" ${team1Taken ? 'disabled' : ''} class="relative ${team1Taken ? 'bg-gray-600 opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'} text-3xl font-bold py-12 px-8 rounded-2xl font-oswald transition-all">
+                    🔵 ${d.teams.team1.name}
+                    ${team1Taken ? '<div class="text-xl mt-2">❌ Obsazeno / Occupato</div>' : ''}
+                    </button>
+                    <button onclick="app.joinTeam('team2')" ${team2Taken ? 'disabled' : ''} class="relative ${team2Taken ? 'bg-gray-600 opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-green-500 to-teal-600 hover:scale-105'} text-3xl font-bold py-12 px-8 rounded-2xl font-oswald transition-all">
+                    🟢 ${d.teams.team2.name}
+                    ${team2Taken ? '<div class="text-xl mt-2">❌ Obsazeno / Occupato</div>' : ''}
+                    </button>
+                    </div></div></div>`;
+                }
+                
+                if (this.teamScreen === 'rules') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-indigo-900 to-pink-900 text-white p-8"><div class="max-w-2xl mx-auto">
+                    <h1 class="text-4xl font-bold text-center mb-8 font-oswald">📋 PRAVIDLA / REGOLE</h1>
+                    <div class="bg-white/10 rounded-2xl p-8 mb-8 text-lg">
+                    <div class="mb-6">
+                    <p class="font-bold mb-3 text-yellow-300">Česky:</p>
+                    <ul class="space-y-2 mb-6">
+                    <li>• 5 levelů, 7 kategorií</li>
+                    <li>• <strong>Level 1:</strong> Zahřívací kolo (bez časovače)</li>
+                    <li>• <strong>Level 2-5:</strong> Časovač 60s s nápovědami</li>
+                    <li>• <strong>Nápovědy:</strong> Po 40s první, po 20s druhá</li>
+                    <li>• <strong>Bodování:</strong></li>
+                    <li class="ml-6">- Do 40s: plné body (10/12/15)</li>
+                    <li class="ml-6">- Do 20s: -3 body (7/9/12)</li>
+                    <li class="ml-6">- Do 0s: -5 bodů (5/7/10)</li>
+                    <li>• <strong>Typy otázek:</strong></li>
+                    <li class="ml-6">- Vědomostní: 10 bodů</li>
+                    <li class="ml-6">- Audio: 12 bodů (buzzer)</li>
+                    <li class="ml-6">- Video: 15 bodů (buzzer)</li>
+                    </ul>
+                    </div>
+                    <div>
+                    <p class="font-bold mb-3 text-blue-300">Italiano:</p>
+                    <ul class="space-y-2">
+                    <li>• 5 livelli, 7 categorie</li>
+                    <li>• <strong>Livello 1:</strong> Riscaldamento (senza timer)</li>
+                    <li>• <strong>Livelli 2-5:</strong> Timer 60s con indizi</li>
+                    <li>• <strong>Indizi:</strong> Dopo 40s primo, dopo 20s secondo</li>
+                    <li>• <strong>Punteggio:</strong></li>
+                    <li class="ml-6">- Entro 40s: punti pieni (10/12/15)</li>
+                    <li class="ml-6">- Entro 20s: -3 punti (7/9/12)</li>
+                    <li class="ml-6">- Entro 0s: -5 punti (5/7/10)</li>
+                    <li>• <strong>Tipi di domande:</strong></li>
+                    <li class="ml-6">- Conoscenza: 10 punti</li>
+                    <li class="ml-6">- Audio: 12 punti (buzzer)</li>
+                    <li class="ml-6">- Video: 15 punti (buzzer)</li>
+                    </ul>
+                    </div>
+                    </div>
+                    <div class="flex items-center mb-6 bg-white/10 p-6 rounded-xl">
+                    <input type="checkbox" id="accept-checkbox" class="w-8 h-8 mr-4" onchange="app.updateCheckbox(this.checked)">
+                    <label for="accept-checkbox" class="text-xl cursor-pointer">✓ Rozumíme / Capiamo</label>
+                    </div>
+                    <button id="ready-btn" onclick="app.confirmReady()" disabled class="w-full text-3xl font-bold py-8 rounded-2xl font-oswald bg-gray-600 opacity-50 cursor-not-allowed">
+                    🚀 Připravit se / Prepararsi
+                    </button>
+                    </div></div>`;
+                }
+                
+                if (this.teamScreen === 'waiting') {
+                    if (d.gameState === 'finished') {
+                        const myScore = d.teams[this.teamId].score;
+                        const otherTeamId = this.teamId === 'team1' ? 'team2' : 'team1';
+                        const otherScore = d.teams[otherTeamId].score;
+                        
+                        let resultEmoji = '🎊';
+                        let resultTextCz = '';
+                        let resultTextIt = '';
+                        let bgColor = 'from-purple-900 to-indigo-900';
+                        
+                        if (myScore > otherScore) {
+                            resultEmoji = '🏆';
+                            resultTextCz = 'VYHRÁLI JSTE!';
+                            resultTextIt = 'HAI VINTO!';
+                            bgColor = 'from-yellow-600 to-orange-600';
+                        } else if (myScore < otherScore) {
+                            resultEmoji = '😊';
+                            resultTextCz = 'DOBRÁ PRÁCE!';
+                            resultTextIt = 'BEL LAVORO!';
+                            bgColor = 'from-blue-800 to-indigo-900';
+                        } else {
+                            resultEmoji = '🤝';
+                            resultTextCz = 'REMÍZA!';
+                            resultTextIt = 'PAREGGIO!';
+                            bgColor = 'from-green-700 to-teal-800';
+                        }
+                        
+                        return `<div class="min-h-screen bg-gradient-to-br ${bgColor} text-white flex items-center justify-center p-8">
+                        <div class="text-center max-w-2xl">
+                        <div class="text-9xl mb-8 animate-bounce">${resultEmoji}</div>
+                        <h1 class="text-5xl font-bold mb-4 font-oswald">KONEC HRY!</h1>
+                        <h2 class="text-4xl font-bold mb-12 text-yellow-300">FINE DEL GIOCO!</h2>
+                        
+                        <div class="bg-white/10 rounded-3xl p-8 mb-8">
+                        <h3 class="text-6xl font-bold mb-6 font-oswald">${resultTextCz}</h3>
+                        <h3 class="text-5xl font-bold mb-8 text-yellow-300">${resultTextIt}</h3>
+                        
+                        <div class="grid grid-cols-2 gap-6 mt-8">
+                        <div class="bg-white/10 rounded-2xl p-6 ${this.teamId === 'team1' ? 'ring-4 ring-yellow-400' : ''}">
+                        <p class="text-xl mb-2">${d.teams.team1.name}</p>
+                        <p class="text-6xl font-bold text-yellow-400">${d.teams.team1.score}</p>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl p-6 ${this.teamId === 'team2' ? 'ring-4 ring-yellow-400' : ''}">
+                        <p class="text-xl mb-2">${d.teams.team2.name}</p>
+                        <p class="text-6xl font-bold text-yellow-400">${d.teams.team2.score}</p>
+                        </div>
+                        </div>
+                        </div>
+                        
+                        <p class="text-2xl text-blue-200">Děkujeme za hru! / Grazie per aver giocato!</p>
+                        </div></div>`;
+                    }
+                    
+                    return `<div class="min-h-screen bg-gradient-to-br from-green-900 to-blue-900 text-white flex items-center justify-center p-8">
+                    <div class="text-center"><div class="text-8xl mb-8 animate-pulse">⏳</div><h1 class="text-4xl font-bold mb-4 font-oswald">Čekáme na start...</h1>
+                    <p class="text-2xl text-blue-200">${d.teams[this.teamId]?.name}</p></div></div>`;
+                }
+                
+                if (this.teamScreen === 'playing' && d.gameState === 'playing') {
+                    const cat = CATEGORIES[d.currentCategory - 1];
+                    const q = QUESTIONS[d.currentCategory]?.[d.currentLevel];
+                    const isBuzzer = cat.type === 'buzzer';
+                    const answerKey = `${this.teamId}-${d.currentLevel}-${d.currentCategory}`;
+                    const hasAnswered = d.answers && d.answers[answerKey] !== undefined;
+                    
+                    return `<div class="min-h-screen bg-gradient-to-br from-indigo-900 to-pink-900 text-white p-8"><div class="max-w-2xl mx-auto">
+                    <div class="text-center mb-8"><div class="text-xl font-bold mb-2">LEVEL ${d.currentLevel}/5</div>
+                    <div class="text-3xl font-bold bg-yellow-400 text-gray-900 px-6 py-3 rounded-full inline-block mb-4 font-oswald">${cat.icon} ${cat.name}</div>
+                    <div class="text-2xl font-bold">💎 ${cat.points}</div></div>
+                    ${isBuzzer ? `<div class="text-center">
+                    <div class="text-3xl mb-4"><p class="mb-2">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
+                    <div class="bg-white/10 rounded-2xl p-12 mb-8">${q.image ? `<img src="${q.image}" class="mx-auto rounded-lg" style="max-width: 400px; max-height: 400px;" alt="${q.answer}">` : `<div style="font-size: 10rem; line-height: 1.2;">${q.visual}</div>`}</div>
+                    ${d.buzzer===this.teamId?'<div class="bg-green-500 text-3xl font-bold py-8 rounded-2xl animate-pulse">⚡ VY ODPOVÍDÁTE!</div>':
+                    d.buzzer?'<div class="bg-red-500 text-2xl font-bold py-6 rounded-2xl">Druhý tým</div>':
+                    '<button onclick="app.pressBuzzer()" class="w-full bg-gradient-to-r from-red-500 to-orange-600 text-4xl font-bold py-16 rounded-2xl font-oswald hover:scale-105 transition-all">🔔 BUZZER!</button>'}</div>` :
+                    `<div><div class="bg-white/10 rounded-2xl p-6 mb-8 text-center text-xl"><p class="mb-3 font-bold">${q?.cz}</p><p class="text-blue-200">${q?.it}</p></div>
+                    
+                    ${d.currentLevel > 1 && d.timerActive ? `
+                    <div class="text-center mb-6">
+                    <div class="text-6xl font-bold ${d.timer <= 20 ? 'text-red-400 timer-pulse' : d.timer <= 40 ? 'text-yellow-400' : 'text-green-400'} font-oswald mb-4">
+                    ⏱️ ${d.timer}s
+                    </div>
+                    ${d.hintsShown > 0 && q.hints ? `<div class="bg-yellow-400/20 border-2 border-yellow-400 rounded-xl p-4 mb-4 text-xl text-yellow-300">
+                    ${q.hints[d.hintsShown-1].content.startsWith('data:image') || q.hints[d.hintsShown-1].content.startsWith('https://') ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 200px; max-height: 200px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}
+                    </div>` : ''}
+                    </div>` : ''}
+                    
+                    ${hasAnswered ? `
+                    <div class="bg-green-500 text-white text-2xl font-bold py-8 px-6 text-center rounded-2xl shadow-2xl mb-6">
+                    ✓ Odpověď odeslána!<br>Risposta inviata!
+                    </div>
+                    <div class="grid gap-4">${q?.answers?.map((a,i)=>`<div class="text-xl font-bold py-6 px-6 rounded-xl text-left transition-all ${d.answers[answerKey]===i?'bg-blue-500 ring-4 ring-blue-300':'bg-white/10 opacity-50'}"><span class="text-yellow-400 text-2xl mr-3">${String.fromCharCode(65+i)}</span>${a}</div>`).join('')}</div>
+                    ` : `
+                    <div class="grid gap-4">${q?.answers?.map((a,i)=>`<button onclick="app.submitAnswer(${i})" class="bg-white/20 hover:bg-white/30 active:bg-blue-500 text-xl font-bold py-6 px-6 rounded-xl text-left hover:scale-105 active:scale-95 transition-all shadow-lg"><span class="text-yellow-400 text-2xl mr-3">${String.fromCharCode(65+i)}</span>${a}</button>`).join('')}</div>
+                    `}</div>`}
+                    </div></div>`;
+                }
+                
+                return this.renderTeam();
+            }
+
+            setView(view) { this.view = view; this.render(); }
+            
+            joinTeam(teamId) {
+                this.teamId = teamId;
+                this.teamScreen = 'rules';
+                this.render();
+            }
+
+            updateCheckbox(checked) {
+                this.rulesAccepted = checked;
+                const btn = document.getElementById('ready-btn');
+                if (btn) {
+                    if (checked) {
+                        btn.disabled = false;
+                        btn.className = 'w-full text-3xl font-bold py-8 rounded-2xl font-oswald bg-gradient-to-r from-green-400 to-blue-500 hover:scale-105 transition-all cursor-pointer';
+                    } else {
+                        btn.disabled = true;
+                        btn.className = 'w-full text-3xl font-bold py-8 rounded-2xl font-oswald bg-gray-600 opacity-50 cursor-not-allowed';
+                    }
+                }
+            }
+
+            confirmReady() {
+                if (!this.rulesAccepted) return;
+                const teams = {...this.gameData.teams};
+                teams[this.teamId].ready = true;
+                this.gameData.teams = teams;
+                this.saveState();
+                this.teamScreen = 'waiting';
+                this.render();
+            }
+
+            startCountdown() {
+                if (this.gameData.teams.team1.ready && this.gameData.teams.team2.ready) {
+                    this.updateGameState({gameState:'countdown',countdown:5});
+                }
+            }
+
+            showCorrectAnswer() {
+                const cat = CATEGORIES[this.gameData.currentCategory - 1];
+                const q = QUESTIONS[this.gameData.currentCategory]?.[this.gameData.currentLevel];
+                const points = this.calculatePoints();
+                
+                const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                
+                const team1Answer = this.gameData.answers?.[team1Key];
+                const team2Answer = this.gameData.answers?.[team2Key];
+                
+                const teams = {...this.gameData.teams};
+                
+                if (team1Answer === q.correct) {
+                    teams.team1.score += points;
+                }
+                if (team2Answer === q.correct) {
+                    teams.team2.score += points;
+                }
+                
+                this.stopTimer();
+                this.updateGameState({ showCorrect: true, teams });
+            }
+
+            revealAnswer() {
+                this.updateGameState({ showCorrect: true });
+            }
+
+            nextQuestion() {
+                this.stopTimer();
+                const updates = { 
+                    buzzer: null,
+                    showCorrect: false,
+                    answers: {},
+                    timer: 60,
+                    timerActive: false,
+                    hintsShown: 0
+                };
+                
+                if (this.gameData.currentCategory < 7) {
+                    updates.currentCategory = this.gameData.currentCategory + 1;
+                    this.updateGameState(updates);
+                } else if (this.gameData.currentLevel < 5) {
+                    updates.gameState = 'levelEnd';
+                    this.updateGameState(updates);
+                } else {
+                    updates.gameState = 'finished';
+                    this.updateGameState(updates);
+                }
+            }
+
+            nextLevel() {
+                this.updateGameState({currentLevel:this.gameData.currentLevel+1,currentCategory:1,gameState:'playing',timer:60,timerActive:false,hintsShown:0});
+            }
+
+            awardPoints(teamId,points) {
+                if (teamId && teamId!=='null') {
+                    const teams={...this.gameData.teams};
+                    teams[teamId].score+=points;
+                    this.gameData.teams = teams;
+                    this.saveState();
+                }
+                this.nextQuestion();
+            }
+
+            nobodyAnswered() {
+                this.nextQuestion();
+            }
+
+            pressBuzzer() {
+                if (!this.gameData.buzzer) {
+                    this.updateGameState({buzzer:this.teamId});
+                }
+            }
+
+            submitAnswer(answerIdx) {
+                const key = `${this.teamId}-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                const answers = { ...(this.gameData.answers || {}) };
+                answers[key] = answerIdx;
+                this.teamScreen = 'playing';
+                this.updateGameState({ answers });
+            }
+
+            resetQuiz() {
+                this.gameData = this.getInitialState();
+                this.saveState();
+                this.render();
+            }
+
+            resetAll() {
+                if (confirm('Opravdu chcete vymazat celou hru a začít znovu?\n\nVeramente vuoi cancellare tutto e ricominciare?')) {
+                    localStorage.removeItem('quiz-state');
+                    location.reload();
+                }
+            }
+        }
+
+        const app = new QuizApp();
+    </script>
+</body>
+</html>
