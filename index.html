@@ -278,18 +278,30 @@
                 // Use the time when both teams answered (or current time if only one answered)
                 const timeUsed = d.finalAnswerTime !== undefined ? d.finalAnswerTime : d.timer;
                 
+                console.log('=== BODOVÁNÍ ===');
+                console.log('finalAnswerTime:', d.finalAnswerTime);
+                console.log('current timer:', d.timer);
+                console.log('timeUsed:', timeUsed);
+                console.log('original points:', points);
+                
                 // Reduce points based on time remaining (only for levels 2-5 with timer)
                 if (d.currentLevel > 1) {
                     if (timeUsed <= 20) {
+                        console.log('Penalizace: -7 bodů (čas <= 20s)');
                         points -= 7; // After second hint
                     } else if (timeUsed <= 40) {
+                        console.log('Penalizace: -3 body (čas <= 40s)');
                         points -= 3; // After first hint
+                    } else {
+                        console.log('Plné body (čas > 40s)');
                     }
-                    // else: full points (41-60s)
                     
                     // Ensure points don't go negative
                     points = Math.max(points, 1);
                 }
+                
+                console.log('final points:', points);
+                console.log('================');
                 
                 const team1Key = `team1-${d.currentLevel}-${d.currentCategory}`;
                 const team2Key = `team2-${d.currentLevel}-${d.currentCategory}`;
