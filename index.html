@@ -56,7 +56,8 @@
             { id: 4, name: 'Famous People', icon: '👥', type: 'knowledge', points: 10 },
             { id: 5, name: 'Movies & TV', icon: '🎬', type: 'buzzer', points: 15 },
             { id: 6, name: 'Nature & Animals', icon: '🌲', type: 'knowledge', points: 10 },
-            { id: 7, name: 'History Highlights', icon: '⏰', type: 'knowledge', points: 10 }
+            { id: 7, name: 'History Highlights', icon: '⏰', type: 'knowledge', points: 10 },
+            { id: 8, name: 'Sport & Champions', icon: '⚽', type: 'knowledge', points: 10 }
         ];
 
         const QUESTIONS = {
@@ -108,6 +109,47 @@
                 3: { cz: 'Tento americký astronaut prohlásil v roce 1969: "To je malý krok pro člověka, ale obrovský skok pro lidstvo." Kdo to byl?', it: 'Questo astronauta americano dichiarò nel 1969: "Un piccolo passo per l\'uomo, un grande balzo per l\'umanità." Chi era?', answers: ['Louis Armstrong', 'Neil Armstrong', 'Lance Armstrong', 'John W. Armstrong'], correct: 1, hints: [{type:'text',content:'💡 Byl první člověk na Měsíci'},{type:'image',content:'https://lh3.googleusercontent.com/d/1IynSoHj5FtB9gMfwfll1Hhh8EHk3oIp7'}] },
                 4: { cz: 'Smlouva podepsaná v historickém nizozemském městě roku 1993 spojila národy do nového celku. Jak se jmenuje organizace, která z ní vznikla?', it: 'Un trattato firmato in una storica città olandese nel 1993 ha unito le nazioni in un nuovo insieme. Come si chiama l\'organizzazione nata da esso?', answers: ['NATO', 'Evropská unie (EU)', 'OSN', 'Rada Evropy'], correct: 1, hints: [{type:'text',content:'💡 Smlouva se jmenuje Maastrichtská'},{type:'image',content:'https://lh3.googleusercontent.com/d/1WZfoCmKnKFtWwSKwLaAqCET1EyxhJgWE'}] },
                 5: { cz: 'Tři lodě tiše prorážely mlhu Atlantiku. Na palubě posádka, která netušila, že mění dějiny. V kterém roce se tato výprava vydala na cestu?', it: 'Tre navi silenziose attraversavano la nebbia dell\'Atlantico. A bordo un equipaggio che non sapeva di cambiare la storia. In che anno questa spedizione intraprese il viaggio?', answers: ['1492', '1500', '1520', '1534'], correct: 0, hints: [{type:'text',content:'💡 Objevení Ameriky / Scoperta dell\'America'},{type:'image',content:'https://lh3.googleusercontent.com/d/1nghpjz1PlTzGQ9xyyGqffv5UJfEuowWq'}] }
+            },
+            8: { // Sport
+                1: { 
+                    cz: 'Stojí tam sám. Jeden míč, jeden pohyb, jeden gól… nebo ne. Je to fotbal, házená, nebo jiný sport? Z jakého místa se právě chystá vystřelit?', 
+                    it: 'Sta lì da solo. Una palla, un movimento, un gol... o no. È calcio, pallamano o un altro sport? Da quale posizione sta per tirare?', 
+                    answers: ['Penalta (fotbal)', 'Samostatný nájezd (lední hokej)', '7metrový hod (házená)', 'Nájezd (pozemní hokej)'], 
+                    correct: 0,
+                    image: 'https://drive.google.com/uc?export=download&id=1CLp94fpLLeVfcBFOVSnyu_-xcvytJ9mY'
+                },
+                2: { 
+                    cz: 'Hraje se venku i pod střechou. Povrch se mění jako roční období – oranžový, zelený, modrý. Rychlost, ticho a rozhodující údery. O jaký sport jde?', 
+                    it: 'Si gioca all\'aperto e al coperto. La superficie cambia come le stagioni – arancione, verde, blu. Velocità, silenzio e colpi decisivi. Di quale sport si tratta?', 
+                    answers: ['Tenis', 'Squash', 'Padel', 'Badminton'], 
+                    correct: 0,
+                    image: 'https://drive.google.com/uc?export=download&id=1Yq-etDcQUP18arRvlIVOCa1soFlfxFBC',
+                    hints: [{type:'text',content:'💡 Hraje se s raketou a míčkem'},{type:'image',content:'https://drive.google.com/uc?export=download&id=1Yq-etDcQUP18arRvlIVOCa1soFlfxFBC'}]
+                },
+                3: { 
+                    cz: 'Odehrává se v pravidelných cyklech. Jednou ve vedru, podruhé na sněhu. Vítězství tady neznamená jen zlato – ale věčnost. Jak se jmenuje tato oslava lidského odhodlání a síly?', 
+                    it: 'Si svolge in cicli regolari. Una volta nel caldo, un\'altra sulla neve. La vittoria qui non significa solo oro – ma eternità. Come si chiama questa celebrazione della determinazione e forza umana?', 
+                    answers: ['Olympijské hry', 'Mistrovství světa', 'Evropské hry', 'Letní olympiáda'], 
+                    correct: 0,
+                    image: 'https://drive.google.com/uc?export=download&id=1JFC1vqmP4UUcBLlV_okc-9bef1vB3SkJ',
+                    hints: [{type:'text',content:'💡 Konají se každé 4 roky'},{type:'image',content:'https://drive.google.com/uc?export=download&id=1JFC1vqmP4UUcBLlV_okc-9bef1vB3SkJ'}]
+                },
+                4: { 
+                    cz: 'Dva soupeři, tři kola, deset sekund může rozhodnout vše. Vítěz tu neodchází s míčem, ale s úderem. O jaký sport se jedná?', 
+                    it: 'Due avversari, tre round, dieci secondi possono decidere tutto. Il vincitore non se ne va con una palla, ma con un pugno. Di quale sport si tratta?', 
+                    answers: ['Box', 'MMA', 'Zápas', 'Kickbox'], 
+                    correct: 0,
+                    image: 'https://drive.google.com/uc?export=download&id=1rkI0AYu1ywy4AurOE1NOhuGw_oyUF_vw',
+                    hints: [{type:'text',content:'💡 Používají se boxerské rukavice'},{type:'image',content:'https://drive.google.com/uc?export=download&id=1rkI0AYu1ywy4AurOE1NOhuGw_oyUF_vw'}]
+                },
+                5: { 
+                    cz: 'Kolo za kolem, každý krok má svůj rytmus. Když se spojí síla, dech a strategie, vítězí ten, kdo ví, kdy zaútočit. O jaký sport jde?', 
+                    it: 'Giro dopo giro, ogni passo ha il suo ritmo. Quando si uniscono forza, respiro e strategia, vince chi sa quando attaccare. Di quale sport si tratta?', 
+                    answers: ['Atletika (běh)', 'Rychlobruslení', 'Veslování', 'Cyklistika na dráze'], 
+                    correct: 0,
+                    image: 'https://drive.google.com/uc?export=download&id=1YTNUlOKp5j7HcWZip6VGFE8XLohay8Qo',
+                    hints: [{type:'text',content:'💡 Běží se na atletické dráze'},{type:'image',content:'https://drive.google.com/uc?export=download&id=1YTNUlOKp5j7HcWZip6VGFE8XLohay8Qo'}]
+                }
             }
         };
 
@@ -393,7 +435,7 @@
                 
                 console.log('Completed categories:', completedCategories.size, 'out of 7');
                 
-                if (completedCategories.size >= 7) {
+                if (completedCategories.size >= 8) {
                     this.updateGameState({ gameState: 'levelEnd' });
                 } else {
                     this.updateGameState({
