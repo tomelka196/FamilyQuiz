@@ -129,32 +129,8 @@
                         // Initialize game if not exists
                         this.initializeGame();
                     } else {
-                        const oldData = this.gameData;
                         this.gameData = newData;
-                        
-                        // Only render if something meaningful changed
-                        const newState = JSON.stringify({
-                            view: this.view,
-                            gameState: newData.gameState,
-                            countdown: newData.countdown,
-                            currentLevel: newData.currentLevel,
-                            currentCategory: newData.currentCategory,
-                            timer: newData.timer,
-                            timerActive: newData.timerActive,
-                            team1Ready: newData.teams?.team1?.ready,
-                            team2Ready: newData.teams?.team2?.ready,
-                            team1Score: newData.teams?.team1?.score,
-                            team2Score: newData.teams?.team2?.score,
-                            answers: newData.answers,
-                            buzzer: newData.buzzer,
-                            hintsShown: newData.hintsShown,
-                            showCorrect: newData.showCorrect
-                        });
-                        
-                        if (newState !== this.lastRenderState) {
-                            this.lastRenderState = newState;
-                            this.render();
-                        }
+                        this.render();
                     }
                 });
             }
@@ -666,15 +642,24 @@
                     <p class="text-sm">5 levelů, nejvíc bodů vyhrává! / 5 livelli, più punti vince!</p>
                     </div>
                     </div>
-                    <div class="text-center mt-6 text-gray-300 text-sm">Čekáme na host... / Aspettiamo l'host...</div>
+                    <div class="text-center mt-6 text-gray-300 text-sm">Čekáme na HOST... / Aspettiamo l'HOST...</div>
                     </div></div>`;
                 }
                 
-                if (d.gameState === 'welcome' || d.gameState === 'countdown') {
+                if (d.gameState === 'welcome') {
                     return `<div class="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white flex items-center justify-center p-12">
                     <div class="text-center">
+                    <div class="text-9xl mb-8">✓</div>
+                    <h1 class="text-5xl font-bold font-oswald mb-4">Připojeni!<br>Connessi!</h1>
+                    <p class="text-2xl text-gray-300">Čekáme na druhý tým a HOST...<br>Aspettiamo l'altra squadra e l'HOST...</p>
+                    </div></div>`;
+                }
+                
+                if (d.gameState === 'countdown') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-red-900 to-yellow-900 text-white flex items-center justify-center p-12">
+                    <div class="text-center">
                     <div class="text-9xl mb-8">⏳</div>
-                    <h1 class="text-5xl font-bold font-oswald">Čekáme na start...<br>Aspettiamo l'inizio...</h1>
+                    <h1 class="text-5xl font-bold font-oswald">Začínáme...<br>Cominciamo...</h1>
                     </div></div>`;
                 }
                 
