@@ -460,9 +460,10 @@
                     </div></div>`;
                 }
                 if (d.gameState === 'countdown') {
+                    const btnHtml = d.countdown > 0 ? '<button onclick="app.decrementCountdown()" class="bg-white text-gray-900 text-4xl font-bold py-8 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">👉 DALŠÍ / AVANTI</button>' : '';
                     return `<div class="min-h-screen bg-gradient-to-br from-red-900 to-yellow-900 flex flex-col items-center justify-center">
                     <h1 class="text-[20rem] font-bold text-white font-oswald mb-12">${d.countdown > 0 ? d.countdown : '🎉'}</h1>
-                    ${d.countdown > 0 ? '<button onclick="app.decrementCountdown()" class="bg-white text-gray-900 text-4xl font-bold py-8 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">👉 DALŠÍ / AVANTI</button>' : ''}
+                    ${btnHtml}
                     </div>`;
                 }
                 if (d.gameState === 'playing') {
