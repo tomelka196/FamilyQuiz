@@ -228,33 +228,31 @@
 
             submitAnswer(teamId, answer) {
                 const key = `${teamId}-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                const currentTimer = this.gameData.timer;
                 
-                // First save the answer
-                gameRef.child(`answers/${key}`).set(answer).then(() => {
-                    // Save the time THIS team answered
-                    gameRef.child('timer').once('value', (timerSnapshot) => {
-                        const currentTimer = timerSnapshot.val();
-                        const timeKey = `${teamId}AnswerTime`;
-                        gameRef.child(timeKey).set(currentTimer);
-                        console.log(`${teamId} odpověděl za ${currentTimer}s`);
-                        
-                        // Check if both teams have now answered
-                        const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
-                        const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
-                        
-                        gameRef.child('answers').once('value', (snapshot) => {
-                            const answers = snapshot.val() || {};
-                            const team1Answered = answers[team1Key] !== undefined;
-                            const team2Answered = answers[team2Key] !== undefined;
-                            
-                            if (team1Answered && team2Answered) {
-                                // Both answered! Stop timer
-                                gameRef.update({ timerActive: false });
-                                console.log('Oba týmy odpověděli! Časovač zastaven.');
-                            }
-                        });
-                    });
-                });
+                // Save answer
+                gameRef.child(`answers/${key}`).set(answer);
+                
+                // Save the time THIS team answered
+                const timeKey = `${teamId}AnswerTime`;
+                gameRef.child(timeKey).set(currentTimer);
+                
+                console.log(`${teamId} odpověděl za ${currentTimer}s, ukládám do ${timeKey}`);
+                
+                // Small delay to let Firebase update, then check if both answered
+                setTimeout(() => {
+                    const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                    const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                    
+                    const team1Answered = this.gameData.answers?.[team1Key] !== undefined;
+                    const team2Answered = this.gameData.answers?.[team2Key] !== undefined;
+                    
+                    if (team1Answered && team2Answered) {
+                        // Both answered! Stop timer
+                        gameRef.update({ timerActive: false });
+                        console.log('Oba týmy odpověděli! Časovač zastaven.');
+                    }
+                }, 500);
             }
 
             awardPoints(teamId, points) {
