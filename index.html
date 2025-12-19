@@ -144,7 +144,11 @@
                             team1Ready: newData.teams?.team1?.ready,
                             team2Ready: newData.teams?.team2?.ready,
                             team1Score: newData.teams?.team1?.score,
-                            team2Score: newData.teams?.team2?.score
+                            team2Score: newData.teams?.team2?.score,
+                            answers: newData.answers,
+                            buzzer: newData.buzzer,
+                            hintsShown: newData.hintsShown,
+                            showCorrect: newData.showCorrect
                         });
                         
                         if (newState !== this.lastRenderState) {
@@ -635,6 +639,35 @@
                     ${team2Taken ? '<div class="text-xl mt-2">❌ Obsazeno / Occupato</div>' : ''}
                     </button>
                     </div></div></div>`;
+                }
+                
+                if (d.gameState === 'rules') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8 overflow-y-auto">
+                    <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-6"><div class="text-6xl mb-4">📜</div>
+                    <h1 class="text-4xl font-bold mb-6 font-oswald">PRAVIDLA / REGOLE</h1></div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 space-y-4 text-lg">
+                    <div class="border-b border-white/20 pb-3">
+                    <h2 class="text-2xl font-bold mb-2 text-yellow-400">🎯 CÍL</h2>
+                    <p class="text-sm"><strong>CZ:</strong> Získávejte body odpovídáním na otázky. Vítězí tým s nejvíce body!</p>
+                    <p class="text-sm"><strong>IT:</strong> Guadagnate punti rispondendo. Vince chi ha più punti!</p>
+                    </div>
+                    <div class="border-b border-white/20 pb-3">
+                    <h2 class="text-2xl font-bold mb-2 text-yellow-400">🎮 DVA TYPY</h2>
+                    <p class="text-sm mb-2"><strong>BUZZER (Level 1):</strong> První kdo zmáčkne / Chi preme per primo</p>
+                    <p class="text-sm"><strong>KNOWLEDGE (Level 2-5):</strong> Oba týmy odpovídají, 60s, nápovědy / Entrambi rispondono, 60s, suggerimenti</p>
+                    </div>
+                    <div class="border-b border-white/20 pb-3">
+                    <h2 class="text-2xl font-bold mb-2 text-yellow-400">💎 BODY</h2>
+                    <p class="text-sm">Body rostou s levelem! / I punti crescono col livello!</p>
+                    </div>
+                    <div>
+                    <h2 class="text-2xl font-bold mb-2 text-yellow-400">🏆 VÝHRA</h2>
+                    <p class="text-sm">5 levelů, nejvíc bodů vyhrává! / 5 livelli, più punti vince!</p>
+                    </div>
+                    </div>
+                    <div class="text-center mt-6 text-gray-300 text-sm">Čekáme na host... / Aspettiamo l'host...</div>
+                    </div></div>`;
                 }
                 
                 if (d.gameState === 'welcome' || d.gameState === 'countdown') {
