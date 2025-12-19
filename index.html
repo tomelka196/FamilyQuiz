@@ -670,7 +670,8 @@
                     } else {
                         const team1Answered = d.answers && d.answers[`team1-${d.currentLevel}-${d.currentCategory}`] !== undefined;
                         const team2Answered = d.answers && d.answers[`team2-${d.currentLevel}-${d.currentCategory}`] !== undefined;
-                        const bothAnswered = team1Answered && team2Answered;
+                        const team3Answered = d.answers && d.answers[`team3-${d.currentLevel}-${d.currentCategory}`] !== undefined;
+                        const allAnswered = team1Answered && team2Answered && team3Answered;
                         const showCorrect = d.showCorrect || false;
                         
                         let timerColor = 'text-green-400';
@@ -696,7 +697,7 @@
                         <span class="text-yellow-400 text-3xl mr-3">${String.fromCharCode(65+i)}</span>${a}</div>`).join('')}
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="grid grid-cols-3 gap-6 mb-8">
                         <div class="p-6 rounded-xl ${team1Answered ? 'bg-green-500' : 'bg-red-500/50'}">
                         <p class="text-2xl font-bold text-center">${team1Answered ? '✓' : '🔴'} ${d.teams.team1.name}</p>
                         <p class="text-xl text-center">${team1Answered ? 'Odpověděl / Ha risposto' : 'Čekáme / Aspettiamo'}</p>
@@ -705,11 +706,15 @@
                         <p class="text-2xl font-bold text-center">${team2Answered ? '✓' : '🔴'} ${d.teams.team2.name}</p>
                         <p class="text-xl text-center">${team2Answered ? 'Odpověděl / Ha risposto' : 'Čekáme / Aspettiamo'}</p>
                         </div>
+                        <div class="p-6 rounded-xl ${team3Answered ? 'bg-green-500' : 'bg-red-500/50'}">
+                        <p class="text-2xl font-bold text-center">${team3Answered ? '✓' : '🔴'} ${d.teams.team3.name}</p>
+                        <p class="text-xl text-center">${team3Answered ? 'Odpověděl / Ha risposto' : 'Čekáme / Aspettiamo'}</p>
+                        </div>
                         </div>
                         </div>
                         
                         <div class="text-center">
-                        ${!showCorrect && bothAnswered ? `
+                        ${!showCorrect && allAnswered ? `
                         <button onclick="app.showCorrectAnswer()" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-3xl font-bold py-6 px-16 rounded-2xl hover:scale-105 transition-all shadow-2xl font-oswald mb-4">
                         📋 ZOBRAZIT SPRÁVNOU ODPOVĚĎ
                         </button>` : ''}
@@ -717,7 +722,7 @@
                         <button onclick="app.evaluateKnowledgeAnswers()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-16 rounded-2xl hover:scale-105 transition-all font-oswald">
                         ➡️ DALŠÍ OTÁZKA
                         </button>` : ''}
-                        ${!isLevel1 && !bothAnswered && !d.timerActive ? `
+                        ${!isLevel1 && !allAnswered && !d.timerActive ? `
                         <button onclick="app.startTimer()" class="bg-gradient-to-r from-blue-400 to-purple-500 text-3xl font-bold py-6 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
                         ⏱️ SPUSTIT ČASOVAČ
                         </button>` : ''}
