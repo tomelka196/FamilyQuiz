@@ -229,6 +229,27 @@
             submitAnswer(teamId, answer) {
                 const key = `${teamId}-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
                 gameRef.child(`answers/${key}`).set(answer);
+                
+                // Check if both teams have answered - if so, stop timer and save time
+                const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                
+                // Use a small delay to ensure both answers are in Firebase
+                setTimeout(() => {
+                    gameRef.once('value', (snapshot) => {
+                        const data = snapshot.val();
+                        const team1Answered = data.answers?.[team1Key] !== undefined;
+                        const team2Answered = data.answers?.[team2Key] !== undefined;
+                        
+                        if (team1Answered && team2Answered) {
+                            // Both answered - stop timer and save the time
+                            gameRef.update({
+                                timerActive: false,
+                                finalAnswerTime: data.timer // Save time when both answered
+                            });
+                        }
+                    });
+                }, 100);
             }
 
             awardPoints(teamId, points) {
@@ -254,11 +275,14 @@
                 const q = QUESTIONS[d.currentCategory][d.currentLevel];
                 let points = this.calculatePoints();
                 
+                // Use the time when both teams answered (or current time if only one answered)
+                const timeUsed = d.finalAnswerTime !== undefined ? d.finalAnswerTime : d.timer;
+                
                 // Reduce points based on time remaining (only for levels 2-5 with timer)
                 if (d.currentLevel > 1) {
-                    if (d.timer <= 20) {
+                    if (timeUsed <= 20) {
                         points -= 7; // After second hint
-                    } else if (d.timer <= 40) {
+                    } else if (timeUsed <= 40) {
                         points -= 3; // After first hint
                     }
                     // else: full points (41-60s)
@@ -287,6 +311,9 @@
                     const currentScore = d.teams.team2.score;
                     gameRef.child('teams/team2/score').set(currentScore + points);
                 }
+                
+                // Clear finalAnswerTime for next question
+                gameRef.child('finalAnswerTime').remove();
                 
                 // Move to next question
                 this.nextQuestion();
