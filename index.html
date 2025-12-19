@@ -654,7 +654,7 @@
                         <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-12 mb-8">
                         <div class="text-3xl text-center mb-8"><p class="mb-4">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
                         
-                        ${!isLevel1 && q.hints && d.hintsShown > 0 ? `<div class="mb-8 text-center text-2xl text-yellow-300">${q.hints[d.hintsShown-1].content.startsWith('data:image') || q.hints[d.hintsShown-1].content.startsWith('https://') ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 300px; max-height: 300px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}</div>` : ''}
+                        ${!isLevel1 && q.hints && d.hintsShown > 0 ? `<div class="mb-8 text-center text-2xl text-yellow-300">${q.hints[d.hintsShown-1].type === 'image' ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 300px; max-height: 300px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}</div>` : ''}
                         
                         <div class="grid grid-cols-2 gap-6 mb-8">
                         ${q.answers.map((a,i)=>`<div class="text-2xl font-bold py-8 px-6 rounded-xl text-center transition-all ${showCorrect && i===q.correct ? 'bg-green-500 ring-4 ring-green-300 scale-105' : 'bg-white/20'}">
@@ -858,7 +858,7 @@
                         <div class="text-2xl text-center mb-8"><p class="mb-3">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
                         
                         ${!isLevel1 && d.hintsShown > 0 && q.hints ? `<div class="bg-yellow-400/20 border-2 border-yellow-400 rounded-xl p-4 mb-4 text-xl text-yellow-300">
-                        ${q.hints[d.hintsShown-1].content.startsWith('data:image') || q.hints[d.hintsShown-1].content.startsWith('https://') ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 200px; max-height: 200px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}
+                        ${q.hints[d.hintsShown-1].type === 'image' ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 200px; max-height: 200px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}
                         </div>` : ''}
                         
                         <div class="grid grid-cols-1 gap-4">
