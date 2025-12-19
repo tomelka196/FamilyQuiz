@@ -326,7 +326,8 @@
                     root.innerHTML = this.renderViewSelect();
                 } else if (this.view === 'host') {
                     root.innerHTML = this.renderHost();
-                    this.handleTimers();
+                    // Schedule timer check after render completes
+                    setTimeout(() => this.handleTimers(), 0);
                 } else if (this.view === 'team') {
                     root.innerHTML = this.renderTeam();
                 }
@@ -341,27 +342,32 @@
                 
                 // Countdown timer
                 if (d.gameState === 'countdown' && d.countdown > 0) {
+                    // Only start new timeout if one isn't already running
                     if (!this.countdownTimeout) {
                         this.countdownTimeout = setTimeout(() => {
-                            const newCountdown = d.countdown - 1;
+                            this.countdownTimeout = null; // Clear first
+                            const newCountdown = this.gameData.countdown - 1;
                             if (newCountdown === 0) {
                                 this.updateGameState({ countdown: 0, gameState: 'playing' });
                             } else {
                                 this.updateGameState({ countdown: newCountdown });
                             }
-                            this.countdownTimeout = null;
                         }, 1000);
                     }
-                } else if (d.gameState !== 'countdown' && this.countdownTimeout) {
-                    clearTimeout(this.countdownTimeout);
-                    this.countdownTimeout = null;
+                } else if (d.gameState !== 'countdown') {
+                    // Clean up if we left countdown state
+                    if (this.countdownTimeout) {
+                        clearTimeout(this.countdownTimeout);
+                        this.countdownTimeout = null;
+                    }
                 }
                 
                 // Game timer (for levels 2-5)
                 if (d.currentLevel > 1 && d.timerActive && d.timer > 0 && d.gameState === 'playing' && d.currentCategory) {
                     if (!this.gameTimerTimeout) {
                         this.gameTimerTimeout = setTimeout(() => {
-                            const newTimer = d.timer - 1;
+                            this.gameTimerTimeout = null; // Clear first
+                            const newTimer = this.gameData.timer - 1;
                             
                             // Check for hints
                             const elapsed = 60 - newTimer;
@@ -369,9 +375,9 @@
                             let updates = { timer: newTimer };
                             
                             if (q?.hints) {
-                                if (elapsed === 20 && d.hintsShown === 0) {
+                                if (elapsed === 20 && this.gameData.hintsShown === 0) {
                                     updates.hintsShown = 1;
-                                } else if (elapsed === 40 && d.hintsShown === 1) {
+                                } else if (elapsed === 40 && this.gameData.hintsShown === 1) {
                                     updates.hintsShown = 2;
                                 }
                             }
@@ -381,7 +387,6 @@
                             }
                             
                             this.updateGameState(updates);
-                            this.gameTimerTimeout = null;
                         }, 1000);
                     }
                 } else if ((!d.timerActive || !d.currentCategory) && this.gameTimerTimeout) {
