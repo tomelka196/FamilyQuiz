@@ -312,10 +312,11 @@
 
             showCorrectAnswer() {
                 // Save the current timer value when HOST shows answer
-                // This is when they decide to evaluate, so use this time for scoring
-                this.updateGameState({ 
+                // Use direct Firebase write to ensure it's saved
+                const currentTimer = this.gameData.timer;
+                gameRef.update({ 
                     showCorrect: true,
-                    finalAnswerTime: this.gameData.timer 
+                    finalAnswerTime: currentTimer 
                 });
             }
 
