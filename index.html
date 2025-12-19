@@ -389,27 +389,6 @@
                     this.gameTimerTimeout = null;
                 }
             }
-                            if (elapsed === 20 && this.gameData.hintsShown === 0) {
-                                this.updateGameState({ hintsShown: 1 });
-                            } else if (elapsed === 40 && this.gameData.hintsShown === 1) {
-                                this.updateGameState({ hintsShown: 2 });
-                                clearInterval(this.hintInterval);
-                                this.hintInterval = null;
-                            }
-                        }, 1000);
-                    }
-                }
-                
-                // Clean up intervals
-                if (!d.timerActive && this.timerInterval) {
-                    clearInterval(this.timerInterval);
-                    this.timerInterval = null;
-                }
-                if (!d.timerActive && this.hintInterval) {
-                    clearInterval(this.hintInterval);
-                    this.hintInterval = null;
-                }
-            }
 
             renderViewSelect() {
                 return `<div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-8">
