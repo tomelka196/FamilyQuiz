@@ -303,10 +303,19 @@
             }
 
             nextQuestion() {
-                const completedCount = Object.keys(this.gameData.answers || {})
-                    .filter(k => k.includes(`-${this.gameData.currentLevel}-`)).length;
+                // Count how many categories are completed (not total answers)
+                const answers = this.gameData.answers || {};
+                const completedCategories = new Set();
                 
-                if (completedCount >= 14) {
+                Object.keys(answers).forEach(key => {
+                    // Extract category ID from key like "team1-1-3"
+                    const parts = key.split('-');
+                    if (parts[1] == this.gameData.currentLevel) {
+                        completedCategories.add(parts[2]); // category ID
+                    }
+                });
+                
+                if (completedCategories.size >= 7) {
                     this.updateGameState({ gameState: 'levelEnd' });
                 } else {
                     this.updateGameState({
