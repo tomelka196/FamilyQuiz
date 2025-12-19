@@ -157,7 +157,8 @@
                     buzzer: null,
                     teams: {
                         team1: { name: 'Tým 1 / Squadra 1', score: 0, ready: false, completedCategories: [] },
-                        team2: { name: 'Tým 2 / Squadra 2', score: 0, ready: false, completedCategories: [] }
+                        team2: { name: 'Tým 2 / Squadra 2', score: 0, ready: false, completedCategories: [] },
+                        team3: { name: 'Tým 3 / Squadra 3', score: 0, ready: false, completedCategories: [] }
                     }
                 };
                 gameRef.set(initialData);
@@ -247,16 +248,23 @@
                 
                 console.log(`${teamId} odpověděl za ${currentTimer}s, ukládám do ${timeKey}`);
                 
-                // Small delay to let Firebase update, then check if both answered
+                // Small delay to let Firebase update, then check if all 3 teams answered
                 setTimeout(() => {
                     const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
                     const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                    const team3Key = `team3-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
                     
                     const team1Answered = this.gameData.answers?.[team1Key] !== undefined;
                     const team2Answered = this.gameData.answers?.[team2Key] !== undefined;
+                    const team3Answered = this.gameData.answers?.[team3Key] !== undefined;
                     
-                    if (team1Answered && team2Answered) {
-                        // Both answered! Stop timer
+                    if (team1Answered && team2Answered && team3Answered) {
+                        // All 3 teams answered! Stop timer
+                        gameRef.update({ timerActive: false });
+                        console.log('Všechny 3 týmy odpověděly! Časovač zastaven.');
+                    }
+                }, 500);
+            }
                         gameRef.update({ timerActive: false });
                         console.log('Oba týmy odpověděli! Časovač zastaven.');
                     }
@@ -287,13 +295,16 @@
                 
                 const team1Key = `team1-${d.currentLevel}-${d.currentCategory}`;
                 const team2Key = `team2-${d.currentLevel}-${d.currentCategory}`;
+                const team3Key = `team3-${d.currentLevel}-${d.currentCategory}`;
                 
                 const team1Answer = d.answers?.[team1Key];
                 const team2Answer = d.answers?.[team2Key];
+                const team3Answer = d.answers?.[team3Key];
                 
                 // Check if answers are correct
                 const team1Correct = team1Answer === q.correct;
                 const team2Correct = team2Answer === q.correct;
+                const team3Correct = team3Answer === q.correct;
                 
                 console.log('=== BODOVÁNÍ ===');
                 
@@ -349,11 +360,38 @@
                     gameRef.child('teams/team2/score').set(currentScore + points);
                 }
                 
+                // Award points to Team 3
+                if (team3Correct) {
+                    let points = this.calculatePoints();
+                    const team3Time = d.team3AnswerTime || d.timer;
+                    
+                    console.log('Tým 3: odpověděl za', team3Time, 's');
+                    console.log('Původní body:', points);
+                    
+                    if (d.currentLevel > 1) {
+                        if (team3Time <= 20) {
+                            console.log('Penalizace: -7 bodů (čas <= 20s)');
+                            points -= 7;
+                        } else if (team3Time <= 40) {
+                            console.log('Penalizace: -3 body (čas <= 40s)');
+                            points -= 3;
+                        } else {
+                            console.log('Plné body (čas > 40s)');
+                        }
+                        points = Math.max(points, 1);
+                    }
+                    
+                    console.log('Finální body pro Tým 3:', points);
+                    const currentScore = d.teams.team3.score;
+                    gameRef.child('teams/team3/score').set(currentScore + points);
+                }
+                
                 console.log('================');
                 
                 // Clear answer times for next question
                 gameRef.child('team1AnswerTime').remove();
                 gameRef.child('team2AnswerTime').remove();
+                gameRef.child('team3AnswerTime').remove();
                 
                 // Move to next question
                 this.nextQuestion();
@@ -530,8 +568,8 @@
                     </div>
                     <div class="border-b border-white/20 pb-4">
                     <h2 class="text-3xl font-bold mb-4 text-yellow-400">📊 LEVELY / LIVELLI</h2>
-                    <p class="mb-2"><strong>CZ:</strong> Hra má 5 levelů. Každý level má 7 kategorií (zeměpis, hudba, jídlo, slavní lidé, filmy, příroda, historie).</p>
-                    <p><strong>IT:</strong> Il gioco ha 5 livelli. Ogni livello ha 7 categorie (geografia, musica, cibo, persone famose, film, natura, storia).</p>
+                    <p class="mb-2"><strong>CZ:</strong> Hra má 5 levelů. Každý level má 8 kategorií (zeměpis, hudba, jídlo, slavní lidé, filmy, příroda, historie, sport).</p>
+                    <p><strong>IT:</strong> Il gioco ha 5 livelli. Ogni livello ha 8 categorie (geografia, musica, cibo, persone famose, film, natura, storia, sport).</p>
                     </div>
                     <div class="border-b border-white/20 pb-4">
                     <h2 class="text-3xl font-bold mb-4 text-yellow-400">🎮 DVA TYPY OTÁZEK / DUE TIPI DI DOMANDE</h2>
@@ -563,15 +601,16 @@
                 if (d.gameState === 'welcome') {
                     return `<div class="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-12"><div class="max-w-6xl mx-auto text-center">
                     <div class="text-9xl mb-6 animate-bounce">🌍</div><h1 class="text-8xl font-bold mb-12 font-oswald" style="background: linear-gradient(to right, #fbbf24, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WE LOVE THE WORLD</h1>
-                    <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="grid grid-cols-3 gap-6 mb-8">
                     <div class="p-6 rounded-xl ${d.teams.team1.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team1.name}</p><p class="text-xl">${d.teams.team1.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
                     <div class="p-6 rounded-xl ${d.teams.team2.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team2.name}</p><p class="text-xl">${d.teams.team2.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
+                    <div class="p-6 rounded-xl ${d.teams.team3.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team3.name}</p><p class="text-xl">${d.teams.team3.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
                     </div>
                     <div class="flex gap-6 justify-center mb-8">
                     <button onclick="app.showRules()" class="bg-gradient-to-r from-blue-400 to-purple-500 text-white text-3xl font-bold py-6 px-12 rounded-2xl font-oswald hover:scale-105 transition-all">
                     📜 PRAVIDLA / REGOLE
                     </button>
-                    ${d.teams.team1.ready && d.teams.team2.ready ? '<button onclick="app.startCountdown()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-12 rounded-2xl font-oswald animate-pulse">🚀 START</button>' : ''}
+                    ${d.teams.team1.ready && d.teams.team2.ready && d.teams.team3.ready ? '<button onclick="app.startCountdown()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-12 rounded-2xl font-oswald animate-pulse">🚀 START</button>' : ''}
                     </div>
                     <div class="text-center mt-12 text-gray-400 text-sm opacity-70">© 2025 Created by TOOM & Claude.ai</div>
                     </div></div>`;
@@ -588,9 +627,10 @@
                         return `<div class="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 text-white p-8"><div class="max-w-7xl mx-auto">
                         <div class="flex justify-between items-center mb-8">
                         <div class="text-3xl font-bold">LEVEL ${d.currentLevel}/5</div>
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-3 gap-6">
                         <div class="text-xl font-bold">${d.teams.team1.name}: ${d.teams.team1.score}</div>
                         <div class="text-xl font-bold">${d.teams.team2.name}: ${d.teams.team2.score}</div>
+                        <div class="text-xl font-bold">${d.teams.team3.name}: ${d.teams.team3.score}</div>
                         </div>
                         </div>
                         <h2 class="text-5xl font-bold text-center mb-12 font-oswald">VYBERTE KATEGORII / SCEGLI CATEGORIA</h2>
@@ -693,17 +733,21 @@
                 
                 if (d.gameState === 'levelEnd') {
                     return `<div class="min-h-screen bg-gradient-to-br from-green-900 to-blue-900 text-white flex items-center justify-center p-12">
-                    <div class="max-w-4xl w-full text-center">
+                    <div class="max-w-5xl w-full text-center">
                     <div class="text-9xl mb-8">🎉</div>
                     <h1 class="text-6xl font-bold mb-12 font-oswald">LEVEL ${d.currentLevel} DOKONČEN!</h1>
-                    <div class="grid grid-cols-2 gap-8 mb-12">
-                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8">
-                    <p class="text-3xl font-bold mb-4">${d.teams.team1.name}</p>
-                    <p class="text-7xl font-bold text-yellow-400">${d.teams.team1.score}</p>
+                    <div class="grid grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6">
+                    <p class="text-2xl font-bold mb-4">${d.teams.team1.name}</p>
+                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team1.score}</p>
                     </div>
-                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8">
-                    <p class="text-3xl font-bold mb-4">${d.teams.team2.name}</p>
-                    <p class="text-7xl font-bold text-yellow-400">${d.teams.team2.score}</p>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6">
+                    <p class="text-2xl font-bold mb-4">${d.teams.team2.name}</p>
+                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team2.score}</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6">
+                    <p class="text-2xl font-bold mb-4">${d.teams.team3.name}</p>
+                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team3.score}</p>
                     </div>
                     </div>
                     <button onclick="app.nextLevel()" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-4xl font-bold py-8 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
@@ -713,23 +757,44 @@
                 }
                 
                 if (d.gameState === 'finished') {
-                    const winner = d.teams.team1.score > d.teams.team2.score ? d.teams.team1 : 
-                                  d.teams.team2.score > d.teams.team1.score ? d.teams.team2 : null;
+                    // Sort teams by score
+                    const teams = [
+                        { id: 'team1', ...d.teams.team1 },
+                        { id: 'team2', ...d.teams.team2 },
+                        { id: 'team3', ...d.teams.team3 }
+                    ].sort((a, b) => b.score - a.score);
+                    
+                    const first = teams[0];
+                    const second = teams[1];
+                    const third = teams[2];
+                    
                     return `<div class="min-h-screen bg-gradient-to-br from-yellow-900 to-orange-900 text-white flex items-center justify-center p-12">
-                    <div class="max-w-4xl w-full text-center">
+                    <div class="max-w-6xl w-full text-center">
                     <div class="text-9xl mb-8">🏆</div>
                     <h1 class="text-7xl font-bold mb-12 font-oswald">HRA SKONČILA!</h1>
-                    ${winner ? `<h2 class="text-5xl font-bold mb-12 text-yellow-300">🎉 ${winner.name} VYHRÁVÁ! 🎉</h2>` : '<h2 class="text-5xl font-bold mb-12">🤝 REMÍZA!</h2>'}
-                    <div class="grid grid-cols-2 gap-8 mb-12">
-                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8">
-                    <p class="text-3xl font-bold mb-4">${d.teams.team1.name}</p>
-                    <p class="text-8xl font-bold text-yellow-400">${d.teams.team1.score}</p>
+                    <h2 class="text-5xl font-bold mb-12 text-yellow-300">🎉 ${first.name} VYHRÁVÁ! 🎉</h2>
+                    
+                    <div class="flex items-end justify-center gap-6 mb-12">
+                        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 w-64" style="height: 280px;">
+                            <div class="text-6xl mb-4">🥈</div>
+                            <p class="text-2xl font-bold mb-3">${second.name}</p>
+                            <p class="text-6xl font-bold text-gray-300">${second.score}</p>
+                            <p class="text-xl text-gray-400 mt-2">2. MÍSTO</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl p-8 w-72" style="height: 360px;">
+                            <div class="text-8xl mb-4">🥇</div>
+                            <p class="text-3xl font-bold mb-4 text-gray-900">${first.name}</p>
+                            <p class="text-8xl font-bold text-gray-900">${first.score}</p>
+                            <p class="text-2xl text-gray-800 mt-3">1. MÍSTO</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 w-64" style="height: 220px;">
+                            <div class="text-5xl mb-4">🥉</div>
+                            <p class="text-2xl font-bold mb-3">${third.name}</p>
+                            <p class="text-5xl font-bold text-amber-600">${third.score}</p>
+                            <p class="text-xl text-gray-400 mt-2">3. MÍSTO</p>
+                        </div>
                     </div>
-                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8">
-                    <p class="text-3xl font-bold mb-4">${d.teams.team2.name}</p>
-                    <p class="text-8xl font-bold text-yellow-400">${d.teams.team2.score}</p>
-                    </div>
-                    </div>
+                    <p class="text-2xl text-gray-300 mt-8">Gratulujeme všem! 🎊</p>
                     </div></div>`;
                 }
             }
@@ -751,6 +816,10 @@
                     <button onclick="app.joinTeam('team2')" ${team2Taken ? 'disabled' : ''} class="relative ${team2Taken ? 'bg-gray-600 opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-green-500 to-teal-600 hover:scale-105'} text-3xl font-bold py-12 px-8 rounded-2xl font-oswald transition-all">
                     🟢 ${d.teams.team2.name}
                     ${team2Taken ? '<div class="text-xl mt-2">❌ Obsazeno / Occupato</div>' : ''}
+                    </button>
+                    <button onclick="app.joinTeam('team3')" ${d.teams.team3?.ready ? 'disabled' : ''} class="relative ${d.teams.team3?.ready ? 'bg-gray-600 opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-600 hover:scale-105'} text-3xl font-bold py-12 px-8 rounded-2xl font-oswald transition-all">
+                    🟠 ${d.teams.team3.name}
+                    ${d.teams.team3?.ready ? '<div class="text-xl mt-2">❌ Obsazeno / Occupato</div>' : ''}
                     </button>
                     </div></div></div>`;
                 }
@@ -789,7 +858,7 @@
                     <div class="text-center">
                     <div class="text-9xl mb-8">✓</div>
                     <h1 class="text-5xl font-bold font-oswald mb-4">Připojeni!<br>Connessi!</h1>
-                    <p class="text-2xl text-gray-300">Čekáme na druhý tým a HOST...<br>Aspettiamo l'altra squadra e l'HOST...</p>
+                    <p class="text-2xl text-gray-300">Čekáme na ostatní týmy a HOST...<br>Aspettiamo le altre squadre e l'HOST...</p>
                     </div></div>`;
                 }
                 
@@ -880,24 +949,41 @@
                 }
                 
                 if (d.gameState === 'finished') {
-                    const winner = d.teams.team1.score > d.teams.team2.score ? d.teams.team1 : 
-                                  d.teams.team2.score > d.teams.team1.score ? d.teams.team2 : null;
+                    // Sort teams by score
+                    const teams = [
+                        { id: 'team1', ...d.teams.team1 },
+                        { id: 'team2', ...d.teams.team2 },
+                        { id: 'team3', ...d.teams.team3 }
+                    ].sort((a, b) => b.score - a.score);
+                    
+                    const first = teams[0];
+                    const second = teams[1];
+                    const third = teams[2];
+                    
                     return `<div class="min-h-screen bg-gradient-to-br from-yellow-900 to-orange-900 text-white flex items-center justify-center p-8">
-                    <div class="max-w-3xl w-full text-center">
-                    <div class="text-9xl mb-8">🏆</div>
-                    <h1 class="text-6xl font-bold mb-8 font-oswald">HRA SKONČILA!</h1>
-                    ${winner ? `<h2 class="text-4xl font-bold mb-8 text-yellow-300">🎉 ${winner.name} 🎉</h2>` : '<h2 class="text-4xl font-bold mb-8">🤝 REMÍZA!</h2>'}
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6">
-                    <p class="text-2xl font-bold mb-3">${d.teams.team1.name}</p>
-                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team1.score}</p>
+                    <div class="max-w-4xl w-full text-center">
+                    <div class="text-9xl mb-6">🏆</div>
+                    <h1 class="text-5xl font-bold mb-6 font-oswald">HRA SKONČILA!</h1>
+                    <h2 class="text-3xl font-bold mb-8 text-yellow-300">🎉 ${first.name} 🎉</h2>
+                    
+                    <div class="flex items-end justify-center gap-4 mb-8">
+                        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 w-32" style="height: 180px;">
+                            <div class="text-4xl mb-2">🥈</div>
+                            <p class="text-lg font-bold mb-2">${second.name}</p>
+                            <p class="text-4xl font-bold text-gray-300">${second.score}</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 w-40" style="height: 240px;">
+                            <div class="text-6xl mb-2">🥇</div>
+                            <p class="text-xl font-bold mb-2 text-gray-900">${first.name}</p>
+                            <p class="text-5xl font-bold text-gray-900">${first.score}</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 w-32" style="height: 150px;">
+                            <div class="text-3xl mb-2">🥉</div>
+                            <p class="text-lg font-bold mb-2">${third.name}</p>
+                            <p class="text-4xl font-bold text-amber-600">${third.score}</p>
+                        </div>
                     </div>
-                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6">
-                    <p class="text-2xl font-bold mb-3">${d.teams.team2.name}</p>
-                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team2.score}</p>
-                    </div>
-                    </div>
-                    <p class="text-2xl text-gray-300 mt-8">Gratulujeme! 🎊<br>Congratulazioni! 🎊</p>
+                    <p class="text-xl text-gray-300 mt-6">Gratulujeme! 🎊<br>Congratulazioni! 🎊</p>
                     </div></div>`;
                 }
             }
