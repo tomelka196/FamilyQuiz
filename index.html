@@ -234,6 +234,48 @@
             awardPoints(teamId, points) {
                 const currentScore = this.gameData.teams[teamId].score;
                 gameRef.child(`teams/${teamId}/score`).set(currentScore + points);
+                
+                // Mark category as completed for buzzer questions
+                const answerKey = `${teamId}-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                gameRef.child(`answers/${answerKey}`).set('buzzer_correct');
+                
+                this.nextQuestion();
+            }
+            
+            buzzerIncorrect() {
+                // Mark as completed but no points
+                const answerKey = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                gameRef.child(`answers/${answerKey}`).set('buzzer_incorrect');
+                this.nextQuestion();
+            }
+            
+            evaluateKnowledgeAnswers() {
+                const d = this.gameData;
+                const q = QUESTIONS[d.currentCategory][d.currentLevel];
+                const points = this.calculatePoints();
+                
+                const team1Key = `team1-${d.currentLevel}-${d.currentCategory}`;
+                const team2Key = `team2-${d.currentLevel}-${d.currentCategory}`;
+                
+                const team1Answer = d.answers?.[team1Key];
+                const team2Answer = d.answers?.[team2Key];
+                
+                // Check if answers are correct
+                const team1Correct = team1Answer === q.correct;
+                const team2Correct = team2Answer === q.correct;
+                
+                // Award points
+                if (team1Correct) {
+                    const currentScore = d.teams.team1.score;
+                    gameRef.child('teams/team1/score').set(currentScore + points);
+                }
+                
+                if (team2Correct) {
+                    const currentScore = d.teams.team2.score;
+                    gameRef.child('teams/team2/score').set(currentScore + points);
+                }
+                
+                // Move to next question
                 this.nextQuestion();
             }
 
@@ -487,12 +529,13 @@
                         <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-12 mb-8">
                         <div class="text-3xl mb-8"><p class="mb-4">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
                         ${q.image ? `<img src="${q.image}" style="max-width: 600px; max-height: 600px;" class="mx-auto rounded-lg mb-8">` : `<div class="text-9xl mb-8">${q.visual}</div>`}
-                        ${!d.buzzer ? '<p class="text-2xl text-yellow-300 animate-pulse font-oswald">Čekáme na buzzer... / Aspettiamo il buzzer...</p>' : `<div class="text-3xl font-bold mb-8">🔔 ${d.teams[d.buzzer].name}</div>`}
+                        ${!d.buzzer ? '<p class="text-2xl text-yellow-300 animate-pulse font-oswald mb-8">Čekáme na buzzer... / Aspettiamo il buzzer...</p>' : `<div class="text-3xl font-bold mb-8">🔔 ${d.teams[d.buzzer].name}</div>`}
                         </div>
+                        ${!d.buzzer ? `<button onclick="app.buzzerIncorrect()" class="bg-gray-600 text-white text-2xl font-bold py-4 px-12 rounded-xl hover:scale-105 transition-all">➡️ BEZ ODPOVĚDI / NESSUNA RISPOSTA</button>` : ''}
                         ${d.buzzer ? `<div class="flex gap-6 justify-center">
-                        <button onclick="app.awardPoints('${d.buzzer}',${cat.points * d.currentLevel})" class="bg-green-500 text-2xl font-bold py-4 px-12 rounded-xl">✓ Správně</button>
-                        <button onclick="app.nextQuestion()" class="bg-red-500 text-2xl font-bold py-4 px-12 rounded-xl">✗ Špatně</button>
-                        ` : ''}
+                        <button onclick="app.awardPoints('${d.buzzer}',${cat.points * d.currentLevel})" class="bg-green-500 text-2xl font-bold py-4 px-12 rounded-xl hover:scale-105 transition-all">✓ Správně / Corretto</button>
+                        <button onclick="app.buzzerIncorrect()" class="bg-red-500 text-2xl font-bold py-4 px-12 rounded-xl hover:scale-105 transition-all">✗ Špatně / Sbagliato</button>
+                        </div>` : ''}
                         </div></div></div>`;
                     } else {
                         const team1Answered = d.answers && d.answers[`team1-${d.currentLevel}-${d.currentCategory}`] !== undefined;
@@ -541,7 +584,7 @@
                         📋 ZOBRAZIT SPRÁVNOU ODPOVĚĎ
                         </button>` : ''}
                         ${showCorrect ? `
-                        <button onclick="app.nextQuestion()" class="bg-gradient-to-r from-green-400 to-blue-500 text-3xl font-bold py-6 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
+                        <button onclick="app.evaluateKnowledgeAnswers()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-16 rounded-2xl hover:scale-105 transition-all font-oswald">
                         ➡️ DALŠÍ OTÁZKA
                         </button>` : ''}
                         ${!isLevel1 && !bothAnswered && !d.timerActive ? `
