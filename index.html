@@ -228,7 +228,33 @@
 
             submitAnswer(teamId, answer) {
                 const key = `${teamId}-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
-                gameRef.child(`answers/${key}`).set(answer);
+                
+                // First save the answer
+                gameRef.child(`answers/${key}`).set(answer).then(() => {
+                    // Save the time THIS team answered
+                    gameRef.child('timer').once('value', (timerSnapshot) => {
+                        const currentTimer = timerSnapshot.val();
+                        const timeKey = `${teamId}AnswerTime`;
+                        gameRef.child(timeKey).set(currentTimer);
+                        console.log(`${teamId} odpověděl za ${currentTimer}s`);
+                        
+                        // Check if both teams have now answered
+                        const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                        const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
+                        
+                        gameRef.child('answers').once('value', (snapshot) => {
+                            const answers = snapshot.val() || {};
+                            const team1Answered = answers[team1Key] !== undefined;
+                            const team2Answered = answers[team2Key] !== undefined;
+                            
+                            if (team1Answered && team2Answered) {
+                                // Both answered! Stop timer
+                                gameRef.update({ timerActive: false });
+                                console.log('Oba týmy odpověděli! Časovač zastaven.');
+                            }
+                        });
+                    });
+                });
             }
 
             awardPoints(teamId, points) {
@@ -252,35 +278,6 @@
             evaluateKnowledgeAnswers() {
                 const d = this.gameData;
                 const q = QUESTIONS[d.currentCategory][d.currentLevel];
-                let points = this.calculatePoints();
-                
-                // Use the time when both teams answered (or current time if only one answered)
-                const timeUsed = d.finalAnswerTime !== undefined ? d.finalAnswerTime : d.timer;
-                
-                console.log('=== BODOVÁNÍ ===');
-                console.log('finalAnswerTime:', d.finalAnswerTime);
-                console.log('current timer:', d.timer);
-                console.log('timeUsed:', timeUsed);
-                console.log('original points:', points);
-                
-                // Reduce points based on time remaining (only for levels 2-5 with timer)
-                if (d.currentLevel > 1) {
-                    if (timeUsed <= 20) {
-                        console.log('Penalizace: -7 bodů (čas <= 20s)');
-                        points -= 7; // After second hint
-                    } else if (timeUsed <= 40) {
-                        console.log('Penalizace: -3 body (čas <= 40s)');
-                        points -= 3; // After first hint
-                    } else {
-                        console.log('Plné body (čas > 40s)');
-                    }
-                    
-                    // Ensure points don't go negative
-                    points = Math.max(points, 1);
-                }
-                
-                console.log('final points:', points);
-                console.log('================');
                 
                 const team1Key = `team1-${d.currentLevel}-${d.currentCategory}`;
                 const team2Key = `team2-${d.currentLevel}-${d.currentCategory}`;
@@ -292,32 +289,73 @@
                 const team1Correct = team1Answer === q.correct;
                 const team2Correct = team2Answer === q.correct;
                 
-                // Award points
+                console.log('=== BODOVÁNÍ ===');
+                
+                // Award points to Team 1
                 if (team1Correct) {
+                    let points = this.calculatePoints();
+                    const team1Time = d.team1AnswerTime || d.timer;
+                    
+                    console.log('Tým 1: odpověděl za', team1Time, 's');
+                    console.log('Původní body:', points);
+                    
+                    if (d.currentLevel > 1) {
+                        if (team1Time <= 20) {
+                            console.log('Penalizace: -7 bodů (čas <= 20s)');
+                            points -= 7;
+                        } else if (team1Time <= 40) {
+                            console.log('Penalizace: -3 body (čas <= 40s)');
+                            points -= 3;
+                        } else {
+                            console.log('Plné body (čas > 40s)');
+                        }
+                        points = Math.max(points, 1);
+                    }
+                    
+                    console.log('Finální body pro Tým 1:', points);
                     const currentScore = d.teams.team1.score;
                     gameRef.child('teams/team1/score').set(currentScore + points);
                 }
                 
+                // Award points to Team 2
                 if (team2Correct) {
+                    let points = this.calculatePoints();
+                    const team2Time = d.team2AnswerTime || d.timer;
+                    
+                    console.log('Tým 2: odpověděl za', team2Time, 's');
+                    console.log('Původní body:', points);
+                    
+                    if (d.currentLevel > 1) {
+                        if (team2Time <= 20) {
+                            console.log('Penalizace: -7 bodů (čas <= 20s)');
+                            points -= 7;
+                        } else if (team2Time <= 40) {
+                            console.log('Penalizace: -3 body (čas <= 40s)');
+                            points -= 3;
+                        } else {
+                            console.log('Plné body (čas > 40s)');
+                        }
+                        points = Math.max(points, 1);
+                    }
+                    
+                    console.log('Finální body pro Tým 2:', points);
                     const currentScore = d.teams.team2.score;
                     gameRef.child('teams/team2/score').set(currentScore + points);
                 }
                 
-                // Clear finalAnswerTime for next question
-                gameRef.child('finalAnswerTime').remove();
+                console.log('================');
+                
+                // Clear answer times for next question
+                gameRef.child('team1AnswerTime').remove();
+                gameRef.child('team2AnswerTime').remove();
                 
                 // Move to next question
                 this.nextQuestion();
             }
 
             showCorrectAnswer() {
-                // Save the current timer value when HOST shows answer
-                // Use direct Firebase write to ensure it's saved
-                const currentTimer = this.gameData.timer;
-                gameRef.update({ 
-                    showCorrect: true,
-                    finalAnswerTime: currentTimer 
-                });
+                // Just show the answer - finalAnswerTime was already saved when both teams answered
+                gameRef.update({ showCorrect: true });
             }
 
             selectCategory(categoryId) {
