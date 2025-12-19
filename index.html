@@ -252,7 +252,20 @@
             evaluateKnowledgeAnswers() {
                 const d = this.gameData;
                 const q = QUESTIONS[d.currentCategory][d.currentLevel];
-                const points = this.calculatePoints();
+                let points = this.calculatePoints();
+                
+                // Reduce points based on time remaining (only for levels 2-5 with timer)
+                if (d.currentLevel > 1) {
+                    if (d.timer <= 20) {
+                        points -= 7; // After second hint
+                    } else if (d.timer <= 40) {
+                        points -= 3; // After first hint
+                    }
+                    // else: full points (41-60s)
+                    
+                    // Ensure points don't go negative
+                    points = Math.max(points, 1);
+                }
                 
                 const team1Key = `team1-${d.currentLevel}-${d.currentCategory}`;
                 const team2Key = `team2-${d.currentLevel}-${d.currentCategory}`;
@@ -790,11 +803,33 @@
                     }
                 }
                 
-                if (d.gameState === 'levelEnd' || d.gameState === 'finished') {
+                if (d.gameState === 'levelEnd') {
                     return `<div class="min-h-screen bg-gradient-to-br from-green-900 to-blue-900 text-white flex items-center justify-center p-12">
                     <div class="text-center">
                     <div class="text-9xl mb-8">⏳</div>
                     <h1 class="text-5xl font-bold font-oswald">Čekáme na další level...<br>Aspettiamo il prossimo livello...</h1>
+                    </div></div>`;
+                }
+                
+                if (d.gameState === 'finished') {
+                    const winner = d.teams.team1.score > d.teams.team2.score ? d.teams.team1 : 
+                                  d.teams.team2.score > d.teams.team1.score ? d.teams.team2 : null;
+                    return `<div class="min-h-screen bg-gradient-to-br from-yellow-900 to-orange-900 text-white flex items-center justify-center p-8">
+                    <div class="max-w-3xl w-full text-center">
+                    <div class="text-9xl mb-8">🏆</div>
+                    <h1 class="text-6xl font-bold mb-8 font-oswald">HRA SKONČILA!</h1>
+                    ${winner ? `<h2 class="text-4xl font-bold mb-8 text-yellow-300">🎉 ${winner.name} 🎉</h2>` : '<h2 class="text-4xl font-bold mb-8">🤝 REMÍZA!</h2>'}
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6">
+                    <p class="text-2xl font-bold mb-3">${d.teams.team1.name}</p>
+                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team1.score}</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6">
+                    <p class="text-2xl font-bold mb-3">${d.teams.team2.name}</p>
+                    <p class="text-6xl font-bold text-yellow-400">${d.teams.team2.score}</p>
+                    </div>
+                    </div>
+                    <p class="text-2xl text-gray-300 mt-8">Gratulujeme! 🎊<br>Congratulazioni! 🎊</p>
                     </div></div>`;
                 }
             }
