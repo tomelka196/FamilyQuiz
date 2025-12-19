@@ -229,27 +229,6 @@
             submitAnswer(teamId, answer) {
                 const key = `${teamId}-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
                 gameRef.child(`answers/${key}`).set(answer);
-                
-                // Check if both teams have answered - if so, stop timer and save time
-                const team1Key = `team1-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
-                const team2Key = `team2-${this.gameData.currentLevel}-${this.gameData.currentCategory}`;
-                
-                // Use a small delay to ensure both answers are in Firebase
-                setTimeout(() => {
-                    gameRef.once('value', (snapshot) => {
-                        const data = snapshot.val();
-                        const team1Answered = data.answers?.[team1Key] !== undefined;
-                        const team2Answered = data.answers?.[team2Key] !== undefined;
-                        
-                        if (team1Answered && team2Answered) {
-                            // Both answered - stop timer and save the time
-                            gameRef.update({
-                                timerActive: false,
-                                finalAnswerTime: data.timer // Save time when both answered
-                            });
-                        }
-                    });
-                }, 100);
             }
 
             awardPoints(teamId, points) {
@@ -332,7 +311,12 @@
             }
 
             showCorrectAnswer() {
-                this.updateGameState({ showCorrect: true });
+                // Save the current timer value when HOST shows answer
+                // This is when they decide to evaluate, so use this time for scoring
+                this.updateGameState({ 
+                    showCorrect: true,
+                    finalAnswerTime: this.gameData.timer 
+                });
             }
 
             selectCategory(categoryId) {
