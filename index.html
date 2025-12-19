@@ -168,8 +168,8 @@
                     showCorrect: false,
                     buzzer: null,
                     teams: {
-                        team1: { name: 'Hráči / Giocatori', score: 0, ready: false, completedCategories: [] },
-                        team2: { name: 'Hvězdy / Stelle', score: 0, ready: false, completedCategories: [] }
+                        team1: { name: 'Tým 1 / Squadra 1', score: 0, ready: false, completedCategories: [] },
+                        team2: { name: 'Tým 2 / Squadra 2', score: 0, ready: false, completedCategories: [] }
                     }
                 };
                 gameRef.set(initialData);
@@ -191,9 +191,25 @@
             }
 
             startCountdown() {
-                // Clear any existing timers first
-                this.clearAllTimers();
+                // Just change state to countdown - HOST will click through manually
                 this.updateGameState({ gameState: 'countdown', countdown: 3 });
+            }
+            
+            decrementCountdown() {
+                const newCount = this.gameData.countdown - 1;
+                if (newCount === 0) {
+                    this.updateGameState({ countdown: 0, gameState: 'playing' });
+                } else {
+                    this.updateGameState({ countdown: newCount });
+                }
+            }
+            
+            showRules() {
+                this.updateGameState({ gameState: 'rules' });
+            }
+            
+            acknowledgeRules() {
+                this.updateGameState({ gameState: 'welcome' });
             }
 
             startTimer() {
@@ -326,47 +342,22 @@
                     root.innerHTML = this.renderViewSelect();
                 } else if (this.view === 'host') {
                     root.innerHTML = this.renderHost();
-                    // Schedule timer check after render completes
-                    setTimeout(() => this.handleTimers(), 0);
+                    // Start game timer if active (for levels 2-5)
+                    this.handleGameTimer();
                 } else if (this.view === 'team') {
                     root.innerHTML = this.renderTeam();
                 }
             }
-
-            handleTimers() {
-                // Only HOST controls timers
-                if (this.view !== 'host') return;
-                
+            
+            handleGameTimer() {
                 const d = this.gameData;
-                if (!d) return;
+                if (!d || this.view !== 'host') return;
                 
-                // Countdown timer
-                if (d.gameState === 'countdown' && d.countdown > 0) {
-                    // Only start new timeout if one isn't already running
-                    if (!this.countdownTimeout) {
-                        this.countdownTimeout = setTimeout(() => {
-                            this.countdownTimeout = null; // Clear first
-                            const newCountdown = this.gameData.countdown - 1;
-                            if (newCountdown === 0) {
-                                this.updateGameState({ countdown: 0, gameState: 'playing' });
-                            } else {
-                                this.updateGameState({ countdown: newCountdown });
-                            }
-                        }, 1000);
-                    }
-                } else if (d.gameState !== 'countdown') {
-                    // Clean up if we left countdown state
-                    if (this.countdownTimeout) {
-                        clearTimeout(this.countdownTimeout);
-                        this.countdownTimeout = null;
-                    }
-                }
-                
-                // Game timer (for levels 2-5)
+                // Only handle game timer (60s timer for levels 2-5)
                 if (d.currentLevel > 1 && d.timerActive && d.timer > 0 && d.gameState === 'playing' && d.currentCategory) {
                     if (!this.gameTimerTimeout) {
                         this.gameTimerTimeout = setTimeout(() => {
-                            this.gameTimerTimeout = null; // Clear first
+                            this.gameTimerTimeout = null;
                             const newTimer = this.gameData.timer - 1;
                             
                             // Check for hints
@@ -389,7 +380,7 @@
                             this.updateGameState(updates);
                         }, 1000);
                     }
-                } else if ((!d.timerActive || !d.currentCategory) && this.gameTimerTimeout) {
+                } else if (this.gameTimerTimeout) {
                     clearTimeout(this.gameTimerTimeout);
                     this.gameTimerTimeout = null;
                 }
@@ -410,6 +401,48 @@
 
             renderHost() {
                 const d = this.gameData;
+                if (d.gameState === 'rules') {
+                    return `<div class="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8"><div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-8"><div class="text-8xl mb-6">📜</div>
+                    <h1 class="text-6xl font-bold mb-8 font-oswald">PRAVIDLA HRY / REGOLE DEL GIOCO</h1></div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 mb-8 text-xl space-y-6">
+                    <div class="border-b border-white/20 pb-4">
+                    <h2 class="text-3xl font-bold mb-4 text-yellow-400">🎯 CÍL HRY / OBIETTIVO</h2>
+                    <p class="mb-2"><strong>CZ:</strong> Odpovídejte na otázky o světě a získávejte body. Vítězí tým s nejvíce body po 5 levelech!</p>
+                    <p><strong>IT:</strong> Rispondete alle domande sul mondo e guadagnate punti. Vince la squadra con più punti dopo 5 livelli!</p>
+                    </div>
+                    <div class="border-b border-white/20 pb-4">
+                    <h2 class="text-3xl font-bold mb-4 text-yellow-400">📊 LEVELY / LIVELLI</h2>
+                    <p class="mb-2"><strong>CZ:</strong> Hra má 5 levelů. Každý level má 7 kategorií (zeměpis, hudba, jídlo, slavní lidé, filmy, příroda, historie).</p>
+                    <p><strong>IT:</strong> Il gioco ha 5 livelli. Ogni livello ha 7 categorie (geografia, musica, cibo, persone famose, film, natura, storia).</p>
+                    </div>
+                    <div class="border-b border-white/20 pb-4">
+                    <h2 class="text-3xl font-bold mb-4 text-yellow-400">🎮 DVA TYPY OTÁZEK / DUE TIPI DI DOMANDE</h2>
+                    <p class="mb-3"><strong>1. BUZZER (Level 1 - Hudba & Filmy):</strong></p>
+                    <p class="mb-2"><strong>CZ:</strong> První tým, který zmáčkne buzzer, odpovídá. Správná odpověď = body. Špatná = soupeř může odpovědět.</p>
+                    <p class="mb-3"><strong>IT:</strong> La prima squadra che preme il buzzer risponde. Risposta corretta = punti. Sbagliata = l'avversario può rispondere.</p>
+                    <p class="mb-3"><strong>2. KNOWLEDGE (Level 2-5 - ostatní kategorie):</strong></p>
+                    <p class="mb-2"><strong>CZ:</strong> Oba týmy odpovídají samostatně na tabletech. Máte 60 sekund. Po 20 a 40 sekundách se objeví nápověda. Host vyhodnotí odpovědi.</p>
+                    <p><strong>IT:</strong> Entrambe le squadre rispondono separatamente sui tablet. Avete 60 secondi. Dopo 20 e 40 secondi appare un suggerimento. L'host valuta le risposte.</p>
+                    </div>
+                    <div class="border-b border-white/20 pb-4">
+                    <h2 class="text-3xl font-bold mb-4 text-yellow-400">💎 BODOVÁNÍ / PUNTEGGIO</h2>
+                    <p class="mb-2"><strong>CZ:</strong> Body rostou s levelem: Level 1 = 10-15 bodů, Level 2 = 20-30 bodů, atd. Hudba a Filmy dávají víc bodů!</p>
+                    <p><strong>IT:</strong> I punti crescono con il livello: Livello 1 = 10-15 punti, Livello 2 = 20-30 punti, ecc. Musica e Film danno più punti!</p>
+                    </div>
+                    <div>
+                    <h2 class="text-3xl font-bold mb-4 text-yellow-400">🏆 VÍTĚZ / VINCITORE</h2>
+                    <p class="mb-2"><strong>CZ:</strong> Po 5 levelech vyhrává tým s nejvíce body!</p>
+                    <p><strong>IT:</strong> Dopo 5 livelli vince la squadra con più punti!</p>
+                    </div>
+                    </div>
+                    <div class="text-center">
+                    <button onclick="app.acknowledgeRules()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-4xl font-bold py-8 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
+                    ✓ ROZUMÍM / CAPISCO
+                    </button>
+                    </div>
+                    </div></div>`;
+                }
                 if (d.gameState === 'welcome') {
                     return `<div class="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-12"><div class="max-w-6xl mx-auto text-center">
                     <div class="text-9xl mb-6 animate-bounce">🌍</div><h1 class="text-8xl font-bold mb-12 font-oswald" style="background: linear-gradient(to right, #fbbf24, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WE LOVE THE WORLD</h1>
@@ -417,12 +450,21 @@
                     <div class="p-6 rounded-xl ${d.teams.team1.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team1.name}</p><p class="text-xl">${d.teams.team1.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
                     <div class="p-6 rounded-xl ${d.teams.team2.ready ? 'bg-green-500' : 'bg-gray-700'}"><p class="text-2xl font-bold">${d.teams.team2.name}</p><p class="text-xl">${d.teams.team2.ready ? '✓ Ready' : '⏳ Waiting'}</p></div>
                     </div>
-                    ${d.teams.team1.ready && d.teams.team2.ready ? '<button onclick="app.startCountdown()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-4xl font-bold py-8 px-16 rounded-2xl font-oswald animate-pulse">🚀 START</button>' : ''}
+                    <div class="flex gap-6 justify-center mb-8">
+                    <button onclick="app.showRules()" class="bg-gradient-to-r from-blue-400 to-purple-500 text-white text-3xl font-bold py-6 px-12 rounded-2xl font-oswald hover:scale-105 transition-all">
+                    📜 PRAVIDLA / REGOLE
+                    </button>
+                    ${d.teams.team1.ready && d.teams.team2.ready ? '<button onclick="app.startCountdown()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-12 rounded-2xl font-oswald animate-pulse">🚀 START</button>' : ''}
+                    </div>
                     <div class="text-center mt-12 text-gray-400 text-sm opacity-70">© 2025 Created by TOOM & Claude.ai</div>
                     </div></div>`;
                 }
                 if (d.gameState === 'countdown') {
-                    return `<div class="min-h-screen bg-gradient-to-br from-red-900 to-yellow-900 flex items-center justify-center"><h1 class="text-[20rem] font-bold text-white animate-bounce font-oswald">${d.countdown > 0 ? d.countdown : '🎉'}</h1></div>`;
+                    return `<div class="min-h-screen bg-gradient-to-br from-red-900 to-yellow-900 flex flex-col items-center justify-center">
+                    <h1 class="text-[20rem] font-bold text-white font-oswald mb-12">${d.countdown > 0 ? d.countdown : '🎉'}</h1>
+                    ${d.countdown > 0 ? '<button onclick="app.decrementCountdown()" class="bg-white text-gray-900 text-4xl font-bold py-8 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">👉 DALŠÍ / AVANTI</button>' : ''}
+                    </div>`;
+                }
                 }
                 if (d.gameState === 'playing') {
                     if (!d.currentCategory) {
