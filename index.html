@@ -310,10 +310,15 @@
                 Object.keys(answers).forEach(key => {
                     // Extract category ID from key like "team1-1-3"
                     const parts = key.split('-');
-                    if (parts[1] == this.gameData.currentLevel) {
-                        completedCategories.add(parts[2]); // category ID
+                    const level = parseInt(parts[1]);
+                    const categoryId = parseInt(parts[2]);
+                    
+                    if (level === this.gameData.currentLevel) {
+                        completedCategories.add(categoryId); // category ID
                     }
                 });
+                
+                console.log('Completed categories:', completedCategories.size, 'out of 7');
                 
                 if (completedCategories.size >= 7) {
                     this.updateGameState({ gameState: 'levelEnd' });
