@@ -123,7 +123,7 @@
                 3: { cz: 'Odehrává se v pravidelných cyklech. Jednou ve vedru, podruhé na sněhu. Vítězství tady neznamená jen zlato – ale věčnost. Jak se jmenuje tato oslava lidského odhodlání a síly?', it: 'Si svolge in cicli regolari. Una volta nel caldo, un\'altra sulla neve. La vittoria qui non significa solo oro – ma eternità. Come si chiama questa celebrazione della determinazione e forza umana?', answers: ['Olympijské hry', 'Mistrovství světa', 'Evropské hry', 'Letní olympiáda'], correct: 0, hints: [{type:'text',content:'💡 Konají se každé 4 roky'},{type:'image',content:'https://lh3.googleusercontent.com/d/1JFC1vqmP4UUcBLlV_okc-9bef1vB3SkJ'}] },
                 4: { cz: 'Dva soupeři, tři kola, deset sekund může rozhodnout vše. Vítěz tu neodchází s míčem, ale s úderem. O jaký sport se jedná?', it: 'Due avversari, tre round, dieci secondi possono decidere tutto. Il vincitore non se ne va con una palla, ma con un pugno. Di quale sport si tratta?', answers: ['Box', 'MMA', 'Zápas', 'Kickbox'], correct: 0, hints: [{type:'text',content:'💡 Používají se boxerské rukavice'},{type:'image',content:'https://lh3.googleusercontent.com/d/1rkI0AYu1ywy4AurOE1NOhuGw_oyUF_vw'}] },
                 5: { cz: 'Kolo za kolem, každý krok má svůj rytmus. Když se spojí síla, dech a strategie, vítězí ten, kdo ví, kdy zaútočit. O jaký sport jde?', it: 'Giro dopo giro, ogni passo ha il suo ritmo. Quando si uniscono forza, respiro e strategia, vince chi sa quando attaccare. Di quale sport si tratta?', answers: ['Atletika (běh)', 'Rychlobruslení', 'Veslování', 'Cyklistika na dráze'], correct: 0, hints: [{type:'text',content:'💡 Běží se na atletické dráze'},{type:'image',content:'https://lh3.googleusercontent.com/d/1YTNUlOKp5j7HcWZip6VGFE8XLohay8Qo'}] },
-                6: { cz: 'Který plavec vyhrál nejvíce zlatých olympijských medailí v historii?', it: 'Quale nuotatore ha vinto il maggior numero di medaglie d\'oro olimpiche nella storia?', answers: ['Michael Phelps', 'Mark Spitz', 'Ryan Lochte', 'Ian Thorpe'], correct: 0 }
+                6: { cz: 'Který plavec vyhrál nejvíce zlatých olympijských medailí v historii?', it: 'Quale nuotatore ha vinto il maggior numero di medaglie d\'oro olimpiche nella storia?', answers: ['Michael Phelps (23 zlatých)', 'Mark Spitz', 'Ryan Lochte', 'Ian Thorpe'], correct: 0 }
             }
         };
 
@@ -325,7 +325,8 @@
                     console.log('Tým 1: odpověděl za', team1Time, 's');
                     console.log('Původní body:', points);
                     
-                    if (d.currentLevel > 1) {
+                    // Time penalties only for levels 2-5 (not level 1 or 6)
+                    if (d.currentLevel > 1 && d.currentLevel < 6) {
                         if (team1Time <= 20) {
                             console.log('Penalizace: -7 bodů (čas <= 20s)');
                             points -= 7;
@@ -351,7 +352,8 @@
                     console.log('Tým 2: odpověděl za', team2Time, 's');
                     console.log('Původní body:', points);
                     
-                    if (d.currentLevel > 1) {
+                    // Time penalties only for levels 2-5 (not level 1 or 6)
+                    if (d.currentLevel > 1 && d.currentLevel < 6) {
                         if (team2Time <= 20) {
                             console.log('Penalizace: -7 bodů (čas <= 20s)');
                             points -= 7;
@@ -377,7 +379,8 @@
                     console.log('Tým 3: odpověděl za', team3Time, 's');
                     console.log('Původní body:', points);
                     
-                    if (d.currentLevel > 1) {
+                    // Time penalties only for levels 2-5 (not level 1 or 6)
+                    if (d.currentLevel > 1 && d.currentLevel < 6) {
                         if (team3Time <= 20) {
                             console.log('Penalizace: -7 bodů (čas <= 20s)');
                             points -= 7;
@@ -520,8 +523,8 @@
                 const d = this.gameData;
                 if (!d || this.view !== 'host') return;
                 
-                // Only handle game timer (60s timer for levels 2-5)
-                if (d.currentLevel > 1 && d.timerActive && d.timer > 0 && d.gameState === 'playing' && d.currentCategory) {
+                // Only handle game timer (60s timer for levels 2-5, NOT level 6)
+                if (d.currentLevel > 1 && d.currentLevel < 6 && d.timerActive && d.timer > 0 && d.gameState === 'playing' && d.currentCategory) {
                     if (!this.gameTimerTimeout) {
                         this.gameTimerTimeout = setTimeout(() => {
                             this.gameTimerTimeout = null;
@@ -704,12 +707,12 @@
                         <div class="text-2xl font-bold bg-green-500 px-6 py-3 rounded-full">💎 ${this.calculatePoints()}</div>
                         </div>
                         
-                        ${!isLevel1 && d.timerActive ? `<div class="text-center mb-8"><div class="text-6xl font-bold ${timerColor} font-oswald">${d.timer}s</div></div>` : ''}
+                        ${!isLevel1 && !isLevel6 && d.timerActive ? `<div class="text-center mb-8"><div class="text-6xl font-bold ${timerColor} font-oswald">${d.timer}s</div></div>` : ''}
                         
                         <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-12 mb-8">
                         <div class="text-3xl text-center mb-8"><p class="mb-4">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
                         
-                        ${!isLevel1 && q.hints && d.hintsShown > 0 ? `<div class="mb-8 text-center text-2xl text-yellow-300">${q.hints[d.hintsShown-1].type === 'image' ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 300px; max-height: 300px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}</div>` : ''}
+                        ${!isLevel1 && !isLevel6 && q.hints && d.hintsShown > 0 ? `<div class="mb-8 text-center text-2xl text-yellow-300">${q.hints[d.hintsShown-1].type === 'image' ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 300px; max-height: 300px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}</div>` : ''}
                         
                         <div class="grid grid-cols-2 gap-6 mb-8">
                         ${q.answers.map((a,i)=>`<div class="text-2xl font-bold py-8 px-6 rounded-xl text-center transition-all ${showCorrect && i===q.correct ? 'bg-green-500 ring-4 ring-green-300 scale-105' : 'bg-white/20'}">
@@ -741,7 +744,7 @@
                         <button onclick="app.evaluateKnowledgeAnswers()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-16 rounded-2xl hover:scale-105 transition-all font-oswald">
                         ➡️ DALŠÍ OTÁZKA
                         </button>` : ''}
-                        ${!isLevel1 && !allAnswered && !d.timerActive ? `
+                        ${!isLevel1 && !isLevel6 && !allAnswered && !d.timerActive ? `
                         <button onclick="app.startTimer()" class="bg-gradient-to-r from-blue-400 to-purple-500 text-3xl font-bold py-6 px-16 rounded-2xl font-oswald hover:scale-105 transition-all">
                         ⏱️ SPUSTIT ČASOVAČ
                         </button>` : ''}
@@ -941,13 +944,13 @@
                         <div class="text-2xl font-bold bg-white/20 px-6 py-3 rounded-full inline-block mb-4">LEVEL ${d.currentLevel}/5</div>
                         <div class="text-3xl font-bold">${cat.icon} ${cat.name}</div>
                         <div class="text-xl font-bold mt-2 text-yellow-400">💎 ${this.calculatePoints()}</div>
-                        ${!isLevel1 && d.timerActive ? `<div class="text-5xl font-bold ${timerColor} mt-4">⏱️ ${d.timer}s</div>` : ''}
+                        ${!isLevel1 && !isLevel6 && d.timerActive ? `<div class="text-5xl font-bold ${timerColor} mt-4">⏱️ ${d.timer}s</div>` : ''}
                         </div>
                         
                         <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 mb-8">
                         <div class="text-2xl text-center mb-8"><p class="mb-3">${q.cz}</p><p class="text-blue-200">${q.it}</p></div>
                         
-                        ${!isLevel1 && d.hintsShown > 0 && q.hints ? `<div class="bg-yellow-400/20 border-2 border-yellow-400 rounded-xl p-4 mb-4 text-xl text-yellow-300">
+                        ${!isLevel1 && !isLevel6 && d.hintsShown > 0 && q.hints ? `<div class="bg-yellow-400/20 border-2 border-yellow-400 rounded-xl p-4 mb-4 text-xl text-yellow-300">
                         ${q.hints[d.hintsShown-1].type === 'image' ? `<img src="${q.hints[d.hintsShown-1].content}" class="mx-auto rounded-lg" style="max-width: 200px; max-height: 200px;" alt="Nápověda">` : q.hints[d.hintsShown-1].content}
                         </div>` : ''}
                         
