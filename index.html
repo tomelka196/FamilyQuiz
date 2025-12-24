@@ -16,6 +16,18 @@
         .font-oswald { font-family: 'Oswald', sans-serif; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .timer-pulse { animation: pulse 1s ease-in-out infinite; }
+        
+        /* Intro animations */
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .intro-logo { animation: fadeIn 1.5s ease-out; }
+        .intro-globe { animation: rotate 20s linear infinite; }
+        .intro-team { animation: slideUp 0.8s ease-out; }
+        .intro-team:nth-child(1) { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
+        .intro-team:nth-child(2) { animation-delay: 0.6s; opacity: 0; animation-fill-mode: forwards; }
+        .intro-team:nth-child(3) { animation-delay: 0.9s; opacity: 0; animation-fill-mode: forwards; }
     </style>
 </head>
 <body>
@@ -89,7 +101,7 @@
                 1: { cz: 'Kdo namaloval Monu Lisu?', it: 'Chi ha dipinto la Gioconda?', answers: ['Michelangelo', 'Leonardo da Vinci', 'Raffaello', 'Caravaggio'], correct: 1 },
                 2: { cz: 'Putoval peklem, očistcem i rájem. Jeho verše z 14. století tvoří jednu z největších literárních poutí vůbec. Kdo je autorem této cesty?', it: 'Ha viaggiato attraverso l\'inferno, il purgatorio e il paradiso. I suoi versi del XIV secolo formano uno dei più grandi viaggi letterari di tutti i tempi. Chi è l\'autore di questo viaggio?', answers: ['Dante Alighieri', 'Petrarca', 'Boccaccio', 'Manzoni'], correct: 0, hints: [{type:'text',content:'💡 Jeho jméno začíná D'},{type:'image',content:'https://lh3.googleusercontent.com/d/1SztwUyzGgD-MEwHvDysjL_i0b7GYeDAR'}] },
                 3: { cz: 'Vedl svou zemi v době rozdělení a utrpení. Svým podpisem změnil osudy milionů a stal se symbolem boje za svobodu. Kdo byl tímto americkým prezidentem?', it: 'Ha guidato il suo paese in un periodo di divisione e sofferenza. Con la sua firma ha cambiato il destino di milioni e è diventato un simbolo della lotta per la libertà. Chi era questo presidente americano?', answers: ['Thomas Jefferson', 'George Washington', 'Abraham Lincoln', 'Benjamin Franklin'], correct: 2, hints: [{type:'text',content:'💡 Jeho tvář je na Mt. Rushmore'},{type:'image',content:'https://lh3.googleusercontent.com/d/1EMC8EgAlrBsMSTsAVavJTtrWnoqDo8Pt'}] },
-                4: { cz: 'Tento slavný skladatel přišel o sluch, přesto vytvořil díla, která dnes zná celý svět. Kdo to byl?', it: 'Questo famoso compositore perse l\'udito, ma creò opere che oggi conosce tutto il mondo. Chi era?', answers: ['Smetana', 'Bach', 'Beethoven', 'Vivaldi'], correct: 2, hints: [{type:'text',content:'💡 Jeho 9. symfonie je hymnou EU'},{type:'image',content:'https://lh3.googleusercontent.com/d/1bBDxYmssy5iCP7FymJLcs7au3HpCFUu6'}] },
+                4: { cz: 'Tento slavný skladatel přišel o sluch, přesto vytvořil díla, která dnes zná celý svět. Kdo to byl?', it: 'Questo famoso compositore perse l\'udito, ma creò opere che oggi conosce tutto il mondo. Chi era?', answers: ['Mozart', 'Bach', 'Beethoven', 'Vivaldi'], correct: 2, hints: [{type:'text',content:'💡 Jeho 9. symfonie je hymnou EU'},{type:'image',content:'https://lh3.googleusercontent.com/d/1bBDxYmssy5iCP7FymJLcs7au3HpCFUu6'}] },
                 5: { cz: 'Vědec s nezaměnitelným vzhledem, který navždy změnil pojetí prostoru, času i energie. Jeho slavná rovnice je známá, ale jeho život plný paradoxů ještě více. Kdo to byl?', it: 'Scienziato dall\'aspetto inconfondibile, che ha cambiato per sempre la concezione di spazio, tempo ed energia. La sua famosa equazione è nota, ma la sua vita piena di paradossi ancora di più. Chi era?', answers: ['Isaac Newton', 'Albert Einstein', 'Galileo Galilei', 'Stephen Hawking'], correct: 1, hints: [{type:'text',content:'💡 Dostal Nobelovu cenu za fyziku'},{type:'image',content:'https://lh3.googleusercontent.com/d/1FHuI9hQxTnx6bL5trkGYdkEO6czMeVaw'}] },
                 6: { cz: 'Který vědec odmítl nabídku stát se prezidentem Izraele v roce 1952?', it: 'Quale scienziato rifiutò l\'offerta di diventare presidente di Israele nel 1952?', answers: ['Albert Einstein', 'Niels Bohr', 'Enrico Fermi', 'Richard Feynman'], correct: 0 }
             },
@@ -102,7 +114,7 @@
                 6: { cz: 'Který film drží rekord jako nejdražší film v historii (rozpočet přes 400 milionů dolarů)?', it: 'Quale film detiene il record come film più costoso della storia (budget oltre 400 milioni di dollari)?', answers: ['Star Wars: The Force Awakens', 'Avatar', 'Avengers: Endgame', 'Pirates of the Caribbean'], correct: 0 }
             },
             6: { // Nature
-                1: { cz: 'Jaké je největší zvíře na světě?', it: 'Qual è l\'animale più grande del mondo?', answers: ['Žralok obrovský / Squalo gigante', 'Velryba jižní / Balena australe', 'Modrá velryba / Balenottera azzurra', 'Slon africký / Elefante africano'], correct: 2 },
+                1: { cz: 'Jaké je největší zvíře na světě?', it: 'Qual è l\'animale più grande del mondo?', answers: ['Slon / Elefante', 'Žirafa / Giraffa', 'Modrá velryba / Balenottera azzurra', 'Nosorožec / Rinoceronte'], correct: 2 },
                 2: { cz: 'Tichý tkadlec visící mezi větvemi. Má osm končetin a mistrovské dílo z hedvábí. O kom je řeč?', it: 'Silenzioso tessitore appeso tra i rami. Ha otto arti e un capolavoro di seta. Di chi si parla?', answers: ['Mravenec / Formica', 'Pavouk / Ragno', 'Stonožka / Millepiedi', 'Brouk / Scarafaggio'], correct: 1, hints: [{type:'text',content:'💡 Loví hmyz'},{type:'image',content:'https://lh3.googleusercontent.com/d/1fu6i8wBraTZj3JeC4BbDfk1H5qpoPs0L'}] },
                 3: { cz: 'Žije tam, kde jiní zmrznou. Nepotřebuje křídla k letu, protože ve vodě je rychlejší než většina ryb. Kdo je tento obyvatel ledového království?', it: 'Vive dove gli altri congelano. Non ha bisogno di ali per volare, perché in acqua è più veloce della maggior parte dei pesci. Chi è questo abitante del regno ghiacciato?', answers: ['Mrož / Tricheco', 'Tučňák / Pinguino', 'Lední medvěd / Orso polare', 'Polární liška / Volpe artica'], correct: 1, hints: [{type:'text',content:'💡 Žije v nejchladnějším místě na Zemi'},{type:'image',content:'https://lh3.googleusercontent.com/d/1_IgBBs54MXpn6m2r44gHYKev0NYZ2CtG'}] },
                 4: { cz: 'Vysoký tvor tiše kráčí mezi stromy. Jeho krk se tyčí nad krajinou, ale nikdo si není jistý, kdo to vlastně je. Které zvíře to může být?', it: 'Una creatura alta cammina silenziosamente tra gli alberi. Il suo collo si erge sopra il paesaggio, ma nessuno è sicuro di chi sia veramente. Quale animale potrebbe essere?', answers: ['Brontosaurus', 'Žirafa / Giraffa', 'Velbloud / Cammello', 'Pštros / Struzzo'], correct: 1, hints: [{type:'text',content:'💡 Je to nejvyšší zvíře na světě'},{type:'image',content:'https://lh3.googleusercontent.com/d/1AZ-ysk-Dz7PpOkEAt-Mou0-Cc7Ego9uW'}] },
@@ -114,7 +126,7 @@
                 2: { cz: 'Betonová bariéra, která rozdělila město a svět na dvě poloviny, padla jedné listopadové noci za jásotu davů. V kterém roce se začaly drolit její zdi?', it: 'Una barriera di cemento che divise la città e il mondo in due metà, cadde una notte di novembre tra il giubilo delle folle. In che anno iniziarono a sgretolarsi le sue mura?', answers: ['1987', '1989', '1991', '1993'], correct: 1, hints: [{type:'text',content:'💡 Stalo se to v Berlíně'},{type:'image',content:'https://lh3.googleusercontent.com/d/1Wydj3kJJOoj4xw_qqyh_hlIzNedfcaa9'}] },
                 3: { cz: 'Tento americký astronaut prohlásil v roce 1969: "To je malý krok pro člověka, ale obrovský skok pro lidstvo." Kdo to byl?', it: 'Questo astronauta americano dichiarò nel 1969: "Un piccolo passo per l\'uomo, un grande balzo per l\'umanità." Chi era?', answers: ['Louis Armstrong', 'Neil Armstrong', 'Lance Armstrong', 'John W. Armstrong'], correct: 1, hints: [{type:'text',content:'💡 Byl první člověk na Měsíci'},{type:'image',content:'https://lh3.googleusercontent.com/d/1IynSoHj5FtB9gMfwfll1Hhh8EHk3oIp7'}] },
                 4: { cz: 'Smlouva podepsaná v historickém nizozemském městě roku 1993 spojila národy do nového celku. Jak se jmenuje organizace, která z ní vznikla?', it: 'Un trattato firmato in una storica città olandese nel 1993 ha unito le nazioni in un nuovo insieme. Come si chiama l\'organizzazione nata da esso?', answers: ['NATO', 'Evropská unie (EU)', 'OSN', 'Rada Evropy'], correct: 1, hints: [{type:'text',content:'💡 Smlouva se jmenuje Maastrichtská'},{type:'image',content:'https://lh3.googleusercontent.com/d/1WZfoCmKnKFtWwSKwLaAqCET1EyxhJgWE'}] },
-                5: { cz: 'Tři lodě tiše prorážely mlhu Atlantiku. Na palubě posádka, která netušila, že mění dějiny. V kterém roce se tato výprava vydala na cestu?', it: 'Tre navi silenziose attraversavano la nebbia dell\'Atlantico. A bordo un equipaggio che non sapeva di cambiare la storia. In che anno questa spedizione intraprese il viaggio?', answers: ['1492', '1392', '1592', '1534'], correct: 0, hints: [{type:'text',content:'💡 Objevení Ameriky / Scoperta dell\'America'},{type:'image',content:'https://lh3.googleusercontent.com/d/1nghpjz1PlTzGQ9xyyGqffv5UJfEuowWq'}] },
+                5: { cz: 'Tři lodě tiše prorážely mlhu Atlantiku. Na palubě posádka, která netušila, že mění dějiny. V kterém roce se tato výprava vydala na cestu?', it: 'Tre navi silenziose attraversavano la nebbia dell\'Atlantico. A bordo un equipaggio che non sapeva di cambiare la storia. In che anno questa spedizione intraprese il viaggio?', answers: ['1492', '1500', '1520', '1534'], correct: 0, hints: [{type:'text',content:'💡 Objevení Ameriky / Scoperta dell\'America'},{type:'image',content:'https://lh3.googleusercontent.com/d/1nghpjz1PlTzGQ9xyyGqffv5UJfEuowWq'}] },
                 6: { cz: 'Která válka trvala nejkratší dobu v historii - pouhých 38 minut?', it: 'Quale guerra è durata meno tempo nella storia - solo 38 minuti?', answers: ['Anglo-zanzibarská válka (1896)', 'Válka o fotbalový zápas (1969)', 'Válka šesti dnů (1967)', 'Válka o prasata (1859)'], correct: 0 }
             },
             8: { // Sport
@@ -122,14 +134,14 @@
                 2: { cz: 'Hraje se venku i pod střechou. Povrch se mění jako roční období – oranžový, zelený, modrý. Rychlost, ticho a rozhodující údery. O jaký sport jde?', it: 'Si gioca all\'aperto e al coperto. La superficie cambia come le stagioni – arancione, verde, blu. Velocità, silenzio e colpi decisivi. Di quale sport si tratta?', answers: ['Tenis', 'Squash', 'Padel', 'Badminton'], correct: 0, hints: [{type:'text',content:'💡 Hraje se s raketou a míčkem'},{type:'image',content:'https://lh3.googleusercontent.com/d/1Yq-etDcQUP18arRvlIVOCa1soFlfxFBC'}] },
                 3: { cz: 'Odehrává se v pravidelných cyklech. Jednou ve vedru, podruhé na sněhu. Vítězství tady neznamená jen zlato – ale věčnost. Jak se jmenuje tato oslava lidského odhodlání a síly?', it: 'Si svolge in cicli regolari. Una volta nel caldo, un\'altra sulla neve. La vittoria qui non significa solo oro – ma eternità. Come si chiama questa celebrazione della determinazione e forza umana?', answers: ['Olympijské hry', 'Mistrovství světa', 'Evropské hry', 'Letní olympiáda'], correct: 0, hints: [{type:'text',content:'💡 Konají se každé 4 roky'},{type:'image',content:'https://lh3.googleusercontent.com/d/1JFC1vqmP4UUcBLlV_okc-9bef1vB3SkJ'}] },
                 4: { cz: 'Dva soupeři, tři kola, deset sekund může rozhodnout vše. Vítěz tu neodchází s míčem, ale s úderem. O jaký sport se jedná?', it: 'Due avversari, tre round, dieci secondi possono decidere tutto. Il vincitore non se ne va con una palla, ma con un pugno. Di quale sport si tratta?', answers: ['Box', 'MMA', 'Zápas', 'Kickbox'], correct: 0, hints: [{type:'text',content:'💡 Používají se boxerské rukavice'},{type:'image',content:'https://lh3.googleusercontent.com/d/1rkI0AYu1ywy4AurOE1NOhuGw_oyUF_vw'}] },
-                5: { cz: 'Kolo za kolem, každý krok má svůj rytmus. Když se spojí síla, dech a strategie, vítězí ten, kdo ví, kdy zaútočit. O jaký sport jde?', it: 'Giro dopo giro, ogni passo ha il suo ritmo. Quando si uniscono forza, respiro e strategia, vince chi sa quando attaccare. Di quale sport si tratta?', answers: ['Atletika', 'Rychlobruslení', 'Veslování', 'Cyklistika na dráze'], correct: 0, hints: [{type:'text',content:'💡 Běží se na atletické dráze'},{type:'image',content:'https://lh3.googleusercontent.com/d/1YTNUlOKp5j7HcWZip6VGFE8XLohay8Qo'}] },
-                6: { cz: 'Který plavec vyhrál nejvíce zlatých olympijských medailí v historii?', it: 'Quale nuotatore ha vinto il maggior numero di medaglie d\'oro olimpiche nella storia?', answers: ['Michael Phelps', 'Mark Spitz', 'Ryan Lochte', 'Ian Thorpe'], correct: 0 }
+                5: { cz: 'Kolo za kolem, každý krok má svůj rytmus. Když se spojí síla, dech a strategie, vítězí ten, kdo ví, kdy zaútočit. O jaký sport jde?', it: 'Giro dopo giro, ogni passo ha il suo ritmo. Quando si uniscono forza, respiro e strategia, vince chi sa quando attaccare. Di quale sport si tratta?', answers: ['Atletika (běh)', 'Rychlobruslení', 'Veslování', 'Cyklistika na dráze'], correct: 0, hints: [{type:'text',content:'💡 Běží se na atletické dráze'},{type:'image',content:'https://lh3.googleusercontent.com/d/1YTNUlOKp5j7HcWZip6VGFE8XLohay8Qo'}] },
+                6: { cz: 'Který plavec vyhrál nejvíce zlatých olympijských medailí v historii?', it: 'Quale nuotatore ha vinto il maggior numero di medaglie d\'oro olimpiche nella storia?', answers: ['Michael Phelps (23 zlatých)', 'Mark Spitz', 'Ryan Lochte', 'Ian Thorpe'], correct: 0 }
             }
         };
 
         class QuizApp {
             constructor() {
-                this.view = 'select';
+                this.view = 'intro';  // Start with intro instead of select
                 this.teamId = null;
                 this.gameData = null;
                 this.timerInterval = null;
@@ -137,6 +149,13 @@
                 this.countdownTimeout = null;
                 this.gameTimerTimeout = null;
                 this.lastRenderState = '';
+                
+                // Auto-skip intro after 8 seconds
+                setTimeout(() => {
+                    if (this.view === 'intro') {
+                        this.skipIntro();
+                    }
+                }, 8000);
                 
                 // Listen to Firebase changes
                 gameRef.on('value', (snapshot) => {
@@ -178,6 +197,11 @@
 
             setView(view) {
                 this.view = view;
+                this.render();
+            }
+
+            skipIntro() {
+                this.view = 'select';
                 this.render();
             }
 
@@ -504,11 +528,15 @@
 
             render() {
                 const root = document.getElementById('root');
-                if (!root || !this.gameData) return;
+                if (!root) return;
                 
                 root.innerHTML = '';
                 
-                if (this.view === 'select') {
+                if (this.view === 'intro') {
+                    root.innerHTML = this.renderIntro();
+                } else if (!this.gameData) {
+                    return;
+                } else if (this.view === 'select') {
                     root.innerHTML = this.renderViewSelect();
                 } else if (this.view === 'host') {
                     root.innerHTML = this.renderHost();
@@ -554,6 +582,47 @@
                     clearTimeout(this.gameTimerTimeout);
                     this.gameTimerTimeout = null;
                 }
+            }
+
+            renderIntro() {
+                return `<div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-8">
+                    <div class="max-w-4xl w-full text-center">
+                        <!-- Logo with fade in animation -->
+                        <div class="intro-logo mb-12">
+                            <div class="text-9xl mb-6 intro-globe">🌍</div>
+                            <h1 class="text-7xl font-bold text-white mb-2 font-oswald" style="text-shadow: 0 0 30px rgba(255,255,255,0.5); background: linear-gradient(to right, #fbbf24, #f97316, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                WE LOVE THE WORLD
+                            </h1>
+                            <p class="text-2xl text-blue-200 mt-4">Rodinný kvíz / Quiz Familiare</p>
+                        </div>
+                        
+                        <!-- Team blocks with staggered animation -->
+                        <div class="grid grid-cols-3 gap-6 mb-12">
+                            <div class="intro-team bg-white/10 backdrop-blur-lg rounded-2xl p-6">
+                                <div class="text-5xl mb-3">🔵</div>
+                                <p class="text-xl font-bold text-white font-oswald">TÝM 1</p>
+                                <p class="text-sm text-blue-200 mt-2">Squadra 1</p>
+                            </div>
+                            <div class="intro-team bg-white/10 backdrop-blur-lg rounded-2xl p-6">
+                                <div class="text-5xl mb-3">🟢</div>
+                                <p class="text-xl font-bold text-white font-oswald">TÝM 2</p>
+                                <p class="text-sm text-blue-200 mt-2">Squadra 2</p>
+                            </div>
+                            <div class="intro-team bg-white/10 backdrop-blur-lg rounded-2xl p-6">
+                                <div class="text-5xl mb-3">🟠</div>
+                                <p class="text-xl font-bold text-white font-oswald">TÝM 3</p>
+                                <p class="text-sm text-blue-200 mt-2">Squadra 3</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Start button -->
+                        <button onclick="app.skipIntro()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white text-3xl font-bold py-6 px-16 rounded-2xl font-oswald hover:scale-105 transition-all shadow-2xl animate-pulse">
+                            🚀 ZAČÍT / INIZIA
+                        </button>
+                        
+                        <p class="text-sm text-gray-400 mt-6 opacity-70">Auto-start za 8 sekund...</p>
+                    </div>
+                </div>`;
             }
 
             renderViewSelect() {
